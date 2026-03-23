@@ -1,0 +1,458 @@
+$date
+	Thu Mar 19 17:26:52 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_buffer_units $end
+$var wire 32 ! b_o [31:0] $end
+$var wire 32 " a_o [31:0] $end
+$var reg 32 # a_i [31:0] $end
+$var reg 32 $ b_i [31:0] $end
+$var reg 1 % clk $end
+$var reg 2 & ctrl [1:0] $end
+$var reg 1 ' read $end
+$var reg 1 ( rst $end
+$var reg 1 ) write $end
+$scope module dut $end
+$var wire 32 * a_i [31:0] $end
+$var wire 32 + b_i [31:0] $end
+$var wire 32 , buff_1 [31:0] $end
+$var wire 32 - buff_2 [31:0] $end
+$var wire 1 % clk $end
+$var wire 2 . ctrl [1:0] $end
+$var wire 1 ' read $end
+$var wire 1 ( rst $end
+$var wire 1 ) write $end
+$var wire 32 / buff_2_i [31:0] $end
+$var wire 32 0 buff_1_i [31:0] $end
+$var wire 32 1 b_o [31:0] $end
+$var wire 32 2 a_o [31:0] $end
+$var reg 2 3 b1_ptr_read [1:0] $end
+$var reg 2 4 b1_ptr_write [1:0] $end
+$var reg 2 5 b2_ptr_read [1:0] $end
+$var reg 2 6 b2_ptr_write [1:0] $end
+$scope module mux1 $end
+$var wire 32 7 a [31:0] $end
+$var wire 32 8 b [31:0] $end
+$var wire 1 9 sel $end
+$var wire 32 : out [31:0] $end
+$upscope $end
+$scope module mux2 $end
+$var wire 32 ; a [31:0] $end
+$var wire 32 < b [31:0] $end
+$var wire 1 = sel $end
+$var wire 32 > out [31:0] $end
+$upscope $end
+$scope module mux3 $end
+$var wire 32 ? a [31:0] $end
+$var wire 32 @ b [31:0] $end
+$var wire 1 A sel $end
+$var wire 32 B out [31:0] $end
+$upscope $end
+$scope module mux4 $end
+$var wire 32 C a [31:0] $end
+$var wire 32 D b [31:0] $end
+$var wire 1 E sel $end
+$var wire 32 F out [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+bx F
+0E
+bx D
+bx C
+bx B
+0A
+bx @
+bx ?
+b0 >
+0=
+b0 <
+b0 ;
+b0 :
+09
+b0 8
+b0 7
+b0 6
+b0 5
+b0 4
+b0 3
+bx 2
+bx 1
+b0 0
+b0 /
+b0 .
+bx -
+bx ,
+b0 +
+b0 *
+0)
+1(
+0'
+b0 &
+0%
+b0 $
+b0 #
+bx "
+bx !
+$end
+#5000
+1%
+#10000
+b1001 /
+b1001 >
+b110 0
+b110 :
+b1001 $
+b1001 +
+b1001 8
+b1001 ;
+b110 #
+b110 *
+b110 7
+b110 <
+1)
+0%
+0(
+#15000
+b1001 !
+b1001 1
+b1001 F
+b110 "
+b110 2
+b110 B
+b1 6
+b1 4
+b1001 -
+b1001 @
+b1001 C
+b110 ,
+b110 ?
+b110 D
+1%
+#20000
+b1001 0
+b1001 :
+b1001 #
+b1001 *
+b1001 7
+b1001 <
+0%
+#25000
+b10 6
+b10 4
+1%
+#30000
+b101 /
+b101 >
+b101 0
+b101 :
+b101 $
+b101 +
+b101 8
+b101 ;
+b101 #
+b101 *
+b101 7
+b101 <
+0%
+#35000
+b11 6
+b11 4
+1%
+#40000
+b100 /
+b100 >
+b111 0
+b111 :
+b100 $
+b100 +
+b100 8
+b100 ;
+b111 #
+b111 *
+b111 7
+b111 <
+0%
+#45000
+b0 6
+b0 4
+1%
+#50000
+0)
+1'
+0%
+#55000
+b1001 "
+b1001 2
+b1001 B
+b1 5
+b1001 ,
+b1001 ?
+b1001 D
+b1 3
+1%
+#60000
+0%
+#65000
+b101 !
+b101 1
+b101 F
+b101 "
+b101 2
+b101 B
+b101 -
+b101 @
+b101 C
+b10 5
+b101 ,
+b101 ?
+b101 D
+b10 3
+1%
+#70000
+0%
+#75000
+b100 !
+b100 1
+b100 F
+b111 "
+b111 2
+b111 B
+b100 -
+b100 @
+b100 C
+b11 5
+b111 ,
+b111 ?
+b111 D
+b11 3
+1%
+#80000
+0%
+#85000
+b100 0
+b100 :
+b111 /
+b111 >
+19
+1=
+b1 &
+b1 .
+0'
+1%
+#90000
+0%
+#95000
+b1 6
+b1 4
+b111 0
+b111 :
+b1001 /
+b1001 >
+b111 $
+b111 +
+b111 8
+b111 ;
+b1001 #
+b1001 *
+b1001 7
+b1001 <
+1)
+1%
+#100000
+0%
+#105000
+b10 6
+b10 4
+b101 0
+b101 :
+b110 /
+b110 >
+b101 $
+b101 +
+b101 8
+b101 ;
+b110 #
+b110 *
+b110 7
+b110 <
+1%
+#110000
+0%
+#115000
+b11 6
+b11 4
+b0 0
+b0 :
+b111 /
+b111 >
+b0 $
+b0 +
+b0 8
+b0 ;
+b111 #
+b111 *
+b111 7
+b111 <
+1%
+#120000
+0%
+#125000
+b111 !
+b111 1
+b111 F
+b0 "
+b0 2
+b0 B
+b0 6
+b0 4
+b111 -
+b111 @
+b111 C
+b0 ,
+b0 ?
+b0 D
+b1000 0
+b1000 :
+b1000 $
+b1000 +
+b1000 8
+b1000 ;
+1%
+#130000
+0%
+#135000
+b0 5
+b100 ,
+b100 ?
+b100 D
+b0 3
+b111 0
+b111 :
+b1000 /
+b1000 >
+b111 "
+b111 2
+b111 B
+b100 !
+b100 1
+b100 F
+09
+0=
+1A
+1E
+1'
+b10 &
+b10 .
+0)
+1%
+#140000
+0%
+#145000
+b1001 "
+b1001 2
+b1001 B
+b111 !
+b111 1
+b111 F
+b1001 -
+b1001 @
+b1001 C
+b1 5
+b111 ,
+b111 ?
+b111 D
+b1 3
+1%
+#150000
+0%
+#155000
+b110 "
+b110 2
+b110 B
+b101 !
+b101 1
+b101 F
+b110 -
+b110 @
+b110 C
+b10 5
+b101 ,
+b101 ?
+b101 D
+b10 3
+1%
+#160000
+0%
+#165000
+b111 "
+b111 2
+b111 B
+b0 !
+b0 1
+b0 F
+b111 -
+b111 @
+b111 C
+b11 5
+b0 ,
+b0 ?
+b0 D
+b11 3
+1%
+#170000
+0%
+#175000
+b100 !
+b100 1
+b100 F
+b0 5
+b100 ,
+b100 ?
+b100 D
+b0 3
+1%
+#180000
+0%
+#185000
+b1001 "
+b1001 2
+b1001 B
+b111 !
+b111 1
+b111 F
+b1001 -
+b1001 @
+b1001 C
+b1 5
+b111 ,
+b111 ?
+b111 D
+b1 3
+1%
+#190000
+0%
+#195000
+b110 "
+b110 2
+b110 B
+b101 !
+b101 1
+b101 F
+b110 -
+b110 @
+b110 C
+b10 5
+b101 ,
+b101 ?
+b101 D
+b10 3
+1%
