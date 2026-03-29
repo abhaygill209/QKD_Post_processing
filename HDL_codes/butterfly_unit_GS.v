@@ -12,8 +12,8 @@ module butterfly_unit_GS #(
 );
 
     always @(*) begin
-        a_o =  w * (a_i + b_i);
-        b_o =  w * (a_i - b_i);
+        a_o = (a_i + b_i);
+        b_o = ((a_i - b_i) * w);
     end
 
     /*

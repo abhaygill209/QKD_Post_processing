@@ -50,13 +50,11 @@ module fifo #(
 
     reg [WIDTH-1:0] mem [0:DEPTH-1];
     reg [$clog2(DEPTH)-1:0] wr_ptr, rd_ptr;
-    reg [$clog2(DEPTH):0] count;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            wr_ptr <= 1;
+            wr_ptr <= 0;
             rd_ptr <= 0;
-            count  <= 1;
             dout   <= 0;
         end else begin
             if (wr_en) begin
@@ -68,11 +66,6 @@ module fifo #(
                 dout <= mem[rd_ptr];
                 rd_ptr <= rd_ptr + 1;
             end
-
-            case ({wr_en, rd_en})
-                2'b10: count <= count + 1;
-                2'b01: count <= count - 1;
-            endcase
         end
     end
 endmodule

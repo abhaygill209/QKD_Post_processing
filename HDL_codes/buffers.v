@@ -14,7 +14,7 @@ module buffer_units #(
     // signal declaration 
     reg [DATA_Width-1:0] read_buffer;
     reg [DATA_Width-1:0] counter; // counter for dispatching data to buffers
-    reg State;
+    reg [1:0] State;
     reg wr_en_1, wr_en_2, read_en_1, read_en_2, ctrl_1;
     reg ctrl_2, ctrl_3; // output mux controls (registered)
     reg ctrl_2_t, ctrl_3_t; // output mux controls (combinational)
@@ -85,7 +85,9 @@ module buffer_units #(
     );
 
     localparam factor = 2**(stage+1);
-    localparam STAGE_1 = 0, STAGE_2 = 1;
+    localparam STAGE_1 = 0, STAGE_2 = 1, STAGE_3 = 2, NULL = 3;
+
+    wire stage_change = counter == factor/4;
 
     // Start sequence as soon as start signal is received
     always @(posedge clk or posedge rst) begin
@@ -96,9 +98,8 @@ module buffer_units #(
         else begin 
             if (start) begin 
                 counter <= counter + 1;
-                if (counter == factor/4) begin 
+                if (stage_change) begin 
                     counter <= 1;
-                    State   <= !State;
                 end 
             end else begin 
                 State   <= STAGE_1;
@@ -117,8 +118,8 @@ module buffer_units #(
                 wr_en_2 = 1;
                 ctrl_1 = 0; 
                 // read 
-                read_en_1 = 1;
-                read_en_2 = 1;
+                read_en_1 = 0;
+                read_en_2 = 0;
             end 
             STAGE_2: begin 
                 wr_en_1 = 1;
@@ -128,6 +129,22 @@ module buffer_units #(
                 // read 
                 read_en_1 = 1;
                 read_en_2 = 0;
+            end 
+            STAGE_3: begin
+                // write
+                wr_en_1 = 1;
+                wr_en_2 = 1;
+                ctrl_1 = 0; 
+                // read 
+                read_en_1 = 1;
+                read_en_2 = 1;
+            end
+            NULL: begin 
+                wr_en_1 = 0;
+                wr_en_2 = 0;
+                read_en_1 = 0;
+                read_en_2 = 0;
+                ctrl_1 = 0;
             end 
         endcase
     end
@@ -140,19 +157,34 @@ module buffer_units #(
             read_buffer <= 0;
         end 
         else begin 
+            if (start) begin 
             case (State) 
                 STAGE_1: begin 
                     // Mux control 
-                    ctrl_2 <= 1;
+                    ctrl_2 <= 0;
                     ctrl_3 <= 0;
+                    if (stage_change) State <= STAGE_2;
                 end 
                 STAGE_2: begin 
                     // Mux control 
                     ctrl_2 <= 0;
                     ctrl_3 <= 1;
-                    read_buffer <= a_i; 
+                    read_buffer <= a_i;
+                    if (stage_change) State <= STAGE_3; 
                 end 
+                STAGE_3: begin
+                    // Mux control 
+                    ctrl_2 <= 1;
+                    ctrl_3 <= 0;
+                    if (stage_change) State <= STAGE_2;
+                end
             endcase
+            end else begin 
+                State <= NULL;
+                ctrl_2 <= 0;
+                ctrl_3 <= 0;
+                read_buffer <= 0;
+            end 
         end 
     end 
  

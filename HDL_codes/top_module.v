@@ -69,7 +69,7 @@ module top_module #(
         .rst(rst),
         .a_i(i_2_BUF_a),
         .b_i(i_2_BUF_b),
-        .w(1), // example twiddle factor
+        .w(32'h00000549), // example twiddle factor
         .a_o(BUF1_a_DU1_a),
         .b_o(BUF1_b_DU1_b)  
     );
@@ -104,7 +104,7 @@ module top_module #(
         .rst(rst),
         .a_i(DU1_a_BUF2_a),
         .b_i(DU1_b_BUF2_b),
-        .w(1), // example twiddle factor
+        .w(tf_1_data), // example twiddle factor
         .a_o(BUF2_a_DU2_a),
         .b_o(BUF2_b_DU2_b)
     );
@@ -137,7 +137,7 @@ module top_module #(
         .rst(rst),
         .a_i(DU2_a_BUF3_a),
         .b_i(DU2_b_BUF3_b),
-        .w(1), // example twiddle factor
+        .w(tf_2_data), // example twiddle factor
         .a_o(data_o_1), 
         .b_o(data_o_2) 
     );
@@ -162,13 +162,59 @@ module top_module #(
 
     // start signals for different stages 
     // can be porametrized 
+    // this goes into controller block later
     always @(*) begin
         start_DU1 = (start);
         start_DU2 = (counter > 1);
     end
 
-endmodule
+    wire [31:0] tf_1_data, tf_2_data;
+    reg tf_1_addr;
+    reg [1:0] tf_2_addr;
 
+    // twiddle factor block // 
+    twiddle_rom #(
+        .STAGE(1),
+        .INIT_FILE("../HDL_codes/twiddle_mem/stage_1.mem")
+    ) t_rom_1 (
+        .clk(clk),
+        .dout(tf_1_data),
+        .addr(tf_1_addr)
+    );
+    twiddle_rom #(
+        .STAGE(2),
+        .INIT_FILE("../HDL_codes/twiddle_mem/stage_2.mem")
+    ) t_rom_2 (
+        .clk(clk),
+        .dout(tf_2_data),
+        .addr(tf_2_addr)
+    );
+
+    // this goes into controller block later
+    wire start_TW_ROM_1 = (counter >= 1);
+    wire start_TW_ROM_2 = (counter >= 4);
+
+    // twiddle factor controller // 
+    always @(posedge clk or rst) begin
+        if (rst) begin
+            tf_1_addr <= 0;
+            tf_2_addr <= 0;
+        end else begin
+            
+            if (start_TW_ROM_1) begin
+                tf_1_addr <= tf_1_addr + 1;
+            end else begin 
+                tf_1_addr <= 0;
+            end
+
+            if (start_TW_ROM_2) begin 
+                tf_2_addr <= tf_2_addr + 1;
+            end else begin 
+                tf_2_addr <= 0;
+            end
+        end 
+    end
+endmodule
 // Buffers working fine 
 // TO DO LIST:
 /*
