@@ -4,7 +4,7 @@ module FromMontgomeryConverter #(
     parameter Q = 12289
 )(
     input clk,
-    input rst_n,
+    input rst,
     input [Q_WIDTH-1:0] c_bar,
     input valid_in,
     output wire valid_out,
@@ -18,7 +18,7 @@ module FromMontgomeryConverter #(
         .Q(Q)
     ) mont_inv (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
        .valid_in(valid_in),
         .b_bar(c_bar),
       .w_bar({{Q_WIDTH-1{1'b0}},1'b1}),
