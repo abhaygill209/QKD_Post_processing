@@ -4,7 +4,7 @@ module ToMontgomeryConverter #(
   parameter R2_MOD_Q = 6829   // R^2 mod q
 )(
     input clk,
-    input rst_n,
+    input rst,
     input [Q_WIDTH-1:0] a,
     input [Q_WIDTH-1:0] b,
     input valid_in,
@@ -25,7 +25,7 @@ module ToMontgomeryConverter #(
         .Q(Q)
     ) mont_a (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .valid_in(valid_in),
         .b_bar(a),
         .w_bar(R2_MOD_Q[Q_WIDTH-1:0]),
@@ -38,7 +38,7 @@ module ToMontgomeryConverter #(
         .Q(Q)
     ) mont_b (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .valid_in(valid_in),
         .b_bar(b),
         .w_bar(R2_MOD_Q[Q_WIDTH-1:0]),
