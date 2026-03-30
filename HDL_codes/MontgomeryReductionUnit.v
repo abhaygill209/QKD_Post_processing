@@ -4,7 +4,7 @@ module MontgomeryReductionUnit #(
     parameter Q_INV = 12287
 )(
     input clk,
-    input rst_n,
+    input rst,
 
     input valid_in,
     input [Q_WIDTH-1:0] b_bar,
@@ -29,8 +29,8 @@ module MontgomeryReductionUnit #(
     reg [2*Q_WIDTH-1:0] t_s3;
     reg valid_s3;
 
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
             valid_s1 <= 0;
             valid_s2 <= 0;
             valid_s3 <= 0;
