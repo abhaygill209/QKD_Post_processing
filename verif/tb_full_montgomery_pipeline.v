@@ -8,7 +8,7 @@ module tb_full_montgomery_pipeline;
     parameter R2_MOD_Q = 6829;
 
    reg clk;
-    reg rst_n;
+    reg rst;
     reg valid_in;
 
     reg [Q_WIDTH-1:0] a, b;
@@ -24,7 +24,7 @@ module tb_full_montgomery_pipeline;
     // DUTs
     ToMontgomeryConverter form (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .a(a),
         .b(b),
         .valid_in(valid_in),
@@ -35,7 +35,7 @@ module tb_full_montgomery_pipeline;
 
     MontgomeryReductionUnit mult (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .valid_in(valid_out1),
         .b_bar(a_bar),
         .w_bar(b_bar),
@@ -45,7 +45,7 @@ module tb_full_montgomery_pipeline;
 
     FromMontgomeryConverter inv (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst(rst),
         .valid_in(valid_out2),
         .valid_out(valid_out),
         .c_bar(c_bar),
@@ -75,10 +75,10 @@ module tb_full_montgomery_pipeline;
         $dumpvars(0,clk,rst_n,a,b,valid_in,a_bar,b_bar,c_bar,c,valid_out);
 
         clk = 0;
-        rst_n = 0;
+        rst= 1;
         valid_in=0;
         #20;
-        rst_n = 1;
+        rst= 0;
         valid_in=1;
 
       for (i = 0; i < 10; i = i + 1) begin
