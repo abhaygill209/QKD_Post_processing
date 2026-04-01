@@ -72,7 +72,7 @@ module tb_full_montgomery_pipeline;
     reg [Q_WIDTH-1:0] b_q [0:9];
     initial begin
         $dumpfile("full_pipeline.vcd");
-        $dumpvars(0,clk,rst_n,a,b,valid_in,a_bar,b_bar,c_bar,c,valid_out);
+        $dumpvars(0,tb_full_montgomery_pipeline);
 
         clk = 0;
         rst= 1;
