@@ -16,7 +16,7 @@ module butterfly_unit_CS #(
     wire [Q_WIDTH-1:0]  sum;
     wire[Q_WIDTH-1:0]  diff;
     wire [Q_WIDTH-1:0] bw;
-    localparam L = 5; // 1 (diff reg) + 4 (MRU latency)
+   localparam L = 5; // 1 (pipe reg) + 4 (MRU latency)
     reg [DATA_WIDTH-1:0] a_pipe [0:L-1];
     integer i;
     
