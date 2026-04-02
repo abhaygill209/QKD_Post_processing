@@ -8,10 +8,10 @@ module butterfly_unit_GS #(
     input                       clk,
     input                       rst,
     input                       start,
-    input  [IN_Width-1:0]       a_i, b_i,
-    input  [DATA_Width-1:0]     w,
+    input  [DATA_WIDTH-1:0]       a_i, b_i,
+    input  [DATA_WIDTH-1:0]     w,
     output wire                 valid_out,
-    output wire [OUT_Width-1:0] a_o, b_o
+    output wire [DATA_WIDTH-1:0] a_o, b_o
 );
 
     wire [Q_WIDTH-1:0] bw;
