@@ -8,15 +8,15 @@ module butterfly_unit_CS #(
     input                       clk,
     input                       rst,
     input                       start,
+    input                       stall,
     input  [DATA_WIDTH-1:0]     a_i, b_i,
     input  [DATA_WIDTH-1:0]     w,
-    output wire                 valid_out,
     output wire [DATA_WIDTH-1:0] a_o, b_o
 );
     wire [Q_WIDTH-1:0]  sum;
     wire[Q_WIDTH-1:0]  diff;
     wire [Q_WIDTH-1:0] bw;
-   localparam L = 5; // 1 (pipe reg) + 4 (MRU latency)
+    localparam L = 5; // 1 (pipe reg) + 4 (MRU latency)
     reg [DATA_WIDTH-1:0] a_pipe [0:L-1];
     integer i;
     
@@ -30,7 +30,7 @@ module butterfly_unit_CS #(
             for (i = 0; i < L; i = i + 1)
                 a_pipe[i] <= 0;
         end 
-        else begin
+        else if (start && !stall) begin
             a_pipe[0] <= a_i; 
             for (i = 1; i < L; i = i + 1)
                 a_pipe[i] <= a_pipe[i-1];
@@ -45,10 +45,10 @@ module butterfly_unit_CS #(
     ) montgomery_reduction (
         .clk(clk),
         .rst(rst),
-        .valid_in(start),
+        .start(start),
+        .stall(stall),
         .b_bar(b_i[Q_WIDTH-1:0]),
         .w_bar(w[Q_WIDTH-1:0]),
-        .valid_out(valid_out),
         .c_bar(bw)
     );
 

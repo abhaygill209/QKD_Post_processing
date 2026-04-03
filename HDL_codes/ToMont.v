@@ -7,8 +7,8 @@ module ToMontgomeryConverter #(
     input rst,
     input [Q_WIDTH-1:0] a,
     input [Q_WIDTH-1:0] b,
-    input valid_in,
-    output wire valid_out,
+    input start,
+    input stall,
     output wire [Q_WIDTH-1:0] a_bar,
     output wire [Q_WIDTH-1:0] b_bar
 );
@@ -16,8 +16,6 @@ module ToMontgomeryConverter #(
     // Wires for Montgomery outputs
     wire [Q_WIDTH-1:0] a_bar_wire;
     wire [Q_WIDTH-1:0] b_bar_wire;
-    wire valid_out1;
-    wire valid_out2;
 
     // Instantiate Montgomery Reduction Units
     MontgomeryReductionUnit #(
@@ -26,10 +24,10 @@ module ToMontgomeryConverter #(
     ) mont_a (
         .clk(clk),
         .rst(rst),
-        .valid_in(valid_in),
+        .start(start),
+        .stall(stall),
         .b_bar(a),
         .w_bar(R2_MOD_Q[Q_WIDTH-1:0]),
-      .valid_out(valid_out1),
         .c_bar(a_bar_wire)
     );
 
@@ -39,14 +37,13 @@ module ToMontgomeryConverter #(
     ) mont_b (
         .clk(clk),
         .rst(rst),
-        .valid_in(valid_in),
+        .start(start),
+        .stall(stall),
         .b_bar(b),
         .w_bar(R2_MOD_Q[Q_WIDTH-1:0]),
-      .valid_out(valid_out2),
         .c_bar(b_bar_wire)
     );
   
     assign a_bar = a_bar_wire;
     assign b_bar = b_bar_wire;
-    assign valid_out=valid_out1&&valid_out2;
 endmodule

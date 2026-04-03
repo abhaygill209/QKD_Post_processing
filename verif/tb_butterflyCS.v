@@ -7,10 +7,9 @@ parameter Q = 12289;
 parameter DEPTH = 32; // queue size
 
 // DUT signals
-reg clk, rst, start;
+reg clk, rst, start,stall;
 reg [W-1:0] a_i, b_i, w;
 wire [W-1:0] a_o, b_o;
-wire valid_out;
 
 // Internal
 reg [W-1:0] a_mont, b_mont, w_mont;
@@ -33,12 +32,12 @@ butterfly_unit_CS dut (
     .clk(clk),
     .rst(rst),
     .start(start),
+    .stall(stall), // No stalling in this test
     .a_i(a_mont),
     .b_i(b_mont),
     .w(w_mont),
     .a_o(a_o),
-    .b_o(b_o),
-    .valid_out(valid_out) // REQUIRED
+    .b_o(b_o)
 );
 
 // Clock
@@ -67,12 +66,13 @@ endfunction
 // INPUT DRIVER (STREAMING)
 /////////////////////////////
 
-integer i;
+integer i,j;
 
 initial begin
     clk = 0;
     rst = 1;
     start = 0;
+    stall = 0;
 
     #20 rst = 0;
 
@@ -98,7 +98,7 @@ initial begin
 
         start = 1;
     end
-
+    
     // Stop sending after stream
     @(posedge clk);
     start = 0;
@@ -107,28 +107,28 @@ end
 /////////////////////////////
 // OUTPUT CHECKER
 /////////////////////////////
-
-always @(posedge clk) begin
-    if (valid_out) begin
-
+initial begin
+    repeat (6) @(posedge clk); // wait for pipeline latency
+    for (j = 0; j < 20; j = j + 1) begin
+            @(posedge clk);
         // Convert back from Montgomery
-        a_out_norm = (a_o * Rinv_mod_q) % Q;
-        b_out_norm = (b_o * Rinv_mod_q) % Q;
+            a_out_norm = (a_o * Rinv_mod_q) % Q;
+            b_out_norm = (b_o * Rinv_mod_q) % Q;
 
-        if (a_out_norm !== exp_u[rd_ptr]) begin
-            $display("ERROR U @%0d: exp=%d got=%d",
-                     rd_ptr, exp_u[rd_ptr], a_out_norm);
-        end
+            if (a_out_norm !== exp_u[rd_ptr]) begin
+                $display("ERROR U @%0d: exp=%d got=%d",
+                    rd_ptr, exp_u[rd_ptr], a_out_norm);
+            end
 
-        if (b_out_norm !== exp_v[rd_ptr]) begin
-            $display("ERROR V @%0d: exp=%d got=%d",
-                     rd_ptr, exp_v[rd_ptr], b_out_norm);
-        end
+            if (b_out_norm !== exp_v[rd_ptr]) begin
+                $display("ERROR V @%0d: exp=%d got=%d",
+                    rd_ptr, exp_v[rd_ptr], b_out_norm);
+            end
 
-        else begin
-            $display("PASS @%0d: u=%d v=%d",
-                     rd_ptr, a_out_norm, b_out_norm);
-        end
+            else begin
+                $display("PASS @%0d: u=%d v=%d",
+                    rd_ptr, a_out_norm, b_out_norm);
+            end
 
         rd_ptr = rd_ptr + 1;
     end

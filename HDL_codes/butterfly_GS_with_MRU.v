@@ -8,17 +8,10 @@ module butterfly_unit_GS #(
     input                       clk,
     input                       rst,
     input                       start,
-<<<<<<< HEAD
-    input  [IN_Width-1:0]       a_i, b_i,
-    input  [DATA_Width-1:0]     w,
-    output wire                 valid_out,
-    output wire [OUT_Width-1:0] a_o, b_o
-=======
-    input  [DATA_WIDTH-1:0]       a_i, b_i,
+    input                       stall,
+    input  [DATA_WIDTH-1:0]     a_i, b_i,
     input  [DATA_WIDTH-1:0]     w,
-    output wire                 valid_out,
     output wire [DATA_WIDTH-1:0] a_o, b_o
->>>>>>> origin/HDL_codes_garima
 );
 
     wire [Q_WIDTH-1:0] bw;
@@ -35,7 +28,8 @@ module butterfly_unit_GS #(
             for (i = 0; i < L; i = i + 1)
                 sum_pipe[i] <= 0;
             diff <= 0;
-        end else begin
+        end
+        else if(start && !stall) begin
             // mod Q addition
             sum_pipe[0] <= (a_i + b_i >= Q) ? a_i + b_i - Q : a_i + b_i;
             // mod Q subtraction
@@ -53,15 +47,11 @@ module butterfly_unit_GS #(
     ) montgomery_reduction (
         .clk(clk),
         .rst(rst),
-        .valid_in(start),
+        .start(start),
+        .stall(stall),
         .b_bar(diff),
         .w_bar(w[Q_WIDTH-1:0]),
-        .valid_out(valid_out),
         .c_bar(bw)
     );
 
-<<<<<<< HEAD
 endmodule
-=======
-endmodule
->>>>>>> origin/HDL_codes_garima

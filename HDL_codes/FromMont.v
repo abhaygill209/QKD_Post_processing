@@ -6,8 +6,8 @@ module FromMontgomeryConverter #(
     input clk,
     input rst,
     input [Q_WIDTH-1:0] c_bar,
-    input valid_in,
-    output wire valid_out,
+    input start,
+    input stall,
     output wire [Q_WIDTH-1:0] c
 );
 
@@ -19,10 +19,10 @@ module FromMontgomeryConverter #(
     ) mont_inv (
         .clk(clk),
         .rst(rst),
-       .valid_in(valid_in),
+        .start(start),
+        .stall(stall),
         .b_bar(c_bar),
-      .w_bar({{Q_WIDTH-1{1'b0}},1'b1}),
-      .valid_out(valid_out),
+        .w_bar({{Q_WIDTH-1{1'b0}},1'b1}),
         .c_bar(c_wire)
     );
 

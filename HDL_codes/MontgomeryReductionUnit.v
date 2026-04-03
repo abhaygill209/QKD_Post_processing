@@ -6,11 +6,11 @@ module MontgomeryReductionUnit #(
     input clk,
     input rst,
 
-    input valid_in,
+    input start,
+    input stall,
     input [Q_WIDTH-1:0] b_bar,
     input [Q_WIDTH-1:0] w_bar,
 
-    output reg valid_out,
     output reg [Q_WIDTH-1:0] c_bar
 );
 
@@ -34,12 +34,17 @@ module MontgomeryReductionUnit #(
             valid_s1 <= 0;
             valid_s2 <= 0;
             valid_s3 <= 0;
-            valid_out <= 0;
-        end else begin
+            x_s1 <= 0;
+            x_s2 <= 0;
+            s_s2 <= 0;
+            t_s3 <= 0;
+            c_bar <= 0;
+        end 
+        else if (!stall) begin
 
             // Stage 1
-            valid_s1 <= valid_in;
-            if (valid_in)
+            valid_s1 <= start;
+            if (start)
                 x_s1 <= b_bar * w_bar;
 
             // Stage 2
@@ -55,7 +60,6 @@ module MontgomeryReductionUnit #(
                 t_s3 <= x_s2 + s_s2 * Q;
 
             // Stage 4
-            valid_out <= valid_s3;
             if (valid_s3) begin
                 // shift + subtract
                 if ((t_s3 >> Q_WIDTH) >= Q)
