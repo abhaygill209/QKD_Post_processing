@@ -8,10 +8,17 @@ module butterfly_unit_GS #(
     input                       clk,
     input                       rst,
     input                       start,
+<<<<<<< HEAD
     input  [IN_Width-1:0]       a_i, b_i,
     input  [DATA_Width-1:0]     w,
     output wire                 valid_out,
     output wire [OUT_Width-1:0] a_o, b_o
+=======
+    input  [DATA_WIDTH-1:0]       a_i, b_i,
+    input  [DATA_WIDTH-1:0]     w,
+    output wire                 valid_out,
+    output wire [DATA_WIDTH-1:0] a_o, b_o
+>>>>>>> origin/HDL_codes_garima
 );
 
     wire [Q_WIDTH-1:0] bw;
@@ -53,4 +60,8 @@ module butterfly_unit_GS #(
         .c_bar(bw)
     );
 
+<<<<<<< HEAD
 endmodule
+=======
+endmodule
+>>>>>>> origin/HDL_codes_garima
