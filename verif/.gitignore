@@ -1,0 +1,5 @@
+# Simulation dump files
+*.vcd
+
+# Simulation executables
+simv*
