@@ -1,0 +1,133 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sun Apr  5 10:07:08 2026
+[*]
+[dumpfile] "/home/abhay/Hardware_security/QKD/Codes/verif/polynomialMUL.vcd"
+[dumpfile_mtime] "Sun Apr  5 10:06:25 2026"
+[dumpfile_size] 213508
+[savefile] "/home/abhay/Hardware_security/QKD/Codes/verif/polynomialMUL.gtkw"
+[timestart] 0
+[size] 1920 1016
+[pos] 0 0
+*-16.362864 473200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_polynomialMUL.
+[treeopen] tb_polynomialMUL.dut.
+[treeopen] tb_polynomialMUL.dut.INTT.butterfly_gen[0].
+[treeopen] tb_polynomialMUL.dut.INTT.butterfly_gen[1].
+[treeopen] tb_polynomialMUL.dut.INTT.butterfly_gen[2].
+[treeopen] tb_polynomialMUL.dut.INTT.delay_gen[0].
+[treeopen] tb_polynomialMUL.dut.INTT.delay_gen[1].
+[treeopen] tb_polynomialMUL.dut.NTT_1.
+[treeopen] tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].
+[treeopen] tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].
+[treeopen] tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].
+[treeopen] tb_polynomialMUL.dut.NTT_1.delay_gen[0].
+[treeopen] tb_polynomialMUL.dut.NTT_1.delay_gen[1].
+[sst_width] 233
+[signals_width] 222
+[sst_expanded] 1
+[sst_vpaned_height] 281
+@28
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.clk
+@200
+-NTT 1
+-1st Butterfly
+@28
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].butterfly_inst.a_o[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[0].butterfly_inst.b_o[31:0]
+@200
+-delay Unit
+@28
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.start
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.State[1:0]
+@22
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.a_i[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.b_i[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.a_o[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[0].Delay_inst.b_o[31:0]
+@200
+-2nd Butter Fly
+@28
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.NTT_1.t_rom_1.addr[31:0]
+tb_polynomialMUL.dut.NTT_1.t_rom_1.dout[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].butterfly_inst.a_o[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[1].butterfly_inst.b_o[31:0]
+@200
+-delay unit
+@28
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.start
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.State[1:0]
+@22
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.a_i[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.b_i[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.a_o[31:0]
+tb_polynomialMUL.dut.NTT_1.delay_gen[1].Delay_inst.b_o[31:0]
+@200
+-3rd butterfly
+@28
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.NTT_1.t_rom_2.addr[31:0]
+tb_polynomialMUL.dut.NTT_1.t_rom_2.dout[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].butterfly_inst.a_o[31:0]
+tb_polynomialMUL.dut.NTT_1.butterfly_gen[2].butterfly_inst.b_o[31:0]
+@200
+-INTT
+-1st Butterfly
+@28
+tb_polynomialMUL.dut.INTT.butterfly_gen[0].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.INTT.butterfly_gen[0].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[0].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[0].butterfly_inst.a_o[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[0].butterfly_inst.b_o[31:0]
+@200
+-1st delay
+@28
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.start
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.State[1:0]
+@22
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.a_i[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.b_i[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.a_o[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[0].Delay_inst.b_o[31:0]
+@200
+-2nd Butterfly
+@28
+tb_polynomialMUL.dut.INTT.butterfly_gen[1].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.INTT.butterfly_gen[1].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[1].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[1].butterfly_inst.a_o[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[1].butterfly_inst.b_o[31:0]
+@200
+-2nd delay
+@28
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.start
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.State[1:0]
+@22
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.a_i[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.b_i[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.a_o[31:0]
+tb_polynomialMUL.dut.INTT.delay_gen[1].Delay_inst.b_o[31:0]
+@200
+-3rd Butterfly
+@28
+tb_polynomialMUL.dut.INTT.butterfly_gen[2].butterfly_inst.start
+@22
+tb_polynomialMUL.dut.INTT.butterfly_gen[2].butterfly_inst.a_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[2].butterfly_inst.b_i[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[2].butterfly_inst.b_o[31:0]
+tb_polynomialMUL.dut.INTT.butterfly_gen[2].butterfly_inst.a_o[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

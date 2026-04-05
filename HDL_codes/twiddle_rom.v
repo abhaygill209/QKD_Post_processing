@@ -1,8 +1,8 @@
 module twiddle_rom #(
-    parameter DATA_WIDTH = 16,  // better for NTT
+    parameter DATA_WIDTH = 32,  // better for NTT
     parameter STAGE = 1,
     parameter DEPTH = (STAGE == 0) ? 1 : (1 << (STAGE)),
-    parameter ADDR_WIDTH = (DEPTH <= 1) ? 1 : $clog2(DEPTH),
+    parameter ADDR_WIDTH = 32,
     parameter INIT_FILE = ""
 )(
     input  wire                     clk,
@@ -29,10 +29,10 @@ module twiddle_rom #(
             file = $fopen(INIT_FILE, "r");
 
             if (file == 0) begin
-                $display("❌ ERROR: Cannot open file %s", INIT_FILE);
+                $display("ERROR: Cannot open file %s", INIT_FILE);
                 $finish;
             end else begin
-                $display("✅ File opened successfully");
+                $display("File opened successfully");
                 $fclose(file);
             end
 
@@ -42,7 +42,7 @@ module twiddle_rom #(
             $display("mem[0] = %h", mem[0]);
 
         end else begin
-            $display("❌ ERROR: INIT_FILE is empty");
+            $display(" ERROR: INIT_FILE is empty");
         end
 
         $display("====================================");

@@ -1,4 +1,4 @@
-module top_module #(
+module loda_lasan #(
     parameter N = 8 
 ) (
     input clk, rst, start, in_valid,
