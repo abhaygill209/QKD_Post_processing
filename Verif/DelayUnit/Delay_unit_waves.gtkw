@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sun Apr  5 17:33:14 2026
+[*]
+[dumpfile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/DelayUnit/tb_delay_unit.vcd"
+[dumpfile_mtime] "Sun Apr  5 17:30:59 2026"
+[dumpfile_size] 15162
+[savefile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/DelayUnit/Delay_unit_waves.gtkw"
+[timestart] 0
+[size] 1920 1016
+[pos] -101 -101
+*-14.858166 40600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_Delay_Unit.
+[sst_width] 233
+[signals_width] 110
+[sst_expanded] 1
+[sst_vpaned_height] 280
+@28
+tb_Delay_Unit.dut.clk_i
+@29
+tb_Delay_Unit.dut.stall_i
+@28
+tb_Delay_Unit.dut.State[1:0]
+@22
+tb_Delay_Unit.dut.a_i[31:0]
+tb_Delay_Unit.dut.b_i[31:0]
+tb_Delay_Unit.dut.a_o[31:0]
+tb_Delay_Unit.dut.b_o[31:0]
+@28
+tb_Delay_Unit.dut.valid_i
+tb_Delay_Unit.dut.valid_o
+[pattern_trace] 1
+[pattern_trace] 0
