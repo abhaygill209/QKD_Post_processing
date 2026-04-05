@@ -2,22 +2,22 @@
 
 module top_module_tb;
     parameter N = 8;
+    parameter DATA_WIDTH = 32;
 
-    reg clk, rst, start, in_valid;
-    reg [N-1:0] data_i;
-    wire [31:0] data_o_1, data_o_2;
+    reg clk, rst, start;
+    reg [DATA_WIDTH-1:0] data_i;
+    wire [DATA_WIDTH-1:0] data_o;
 
     // Instantiate DUT
     top_module #(
-        .N(N)
+        .N(N),
+        .DATA_WIDTH(DATA_WIDTH)
     ) dut (
         .clk(clk),
         .rst(rst),
         .start(start),
-        .in_valid(in_valid),
         .data_i(data_i),
-        .data_o_1(data_o_1),
-        .data_o_2(data_o_2)
+        .data_o(data_o)
     );
 
     // Clock generation
@@ -29,30 +29,22 @@ module top_module_tb;
         clk = 0;
         rst = 1;
         start = 0;
-        in_valid = 0;
         data_i = 0;
         #20;
         rst = 0;
         #10;
 
-        // Provide input data and assert in_valid for one cycle
-        data_i = 8'b11010101;
-        in_valid = 1;
-        #10;
-        in_valid = 0;
+        // Provide input data and assert start for one cycle
+        data_i = 32'hA5A5A5A5;
+        start = 1;
+        #1000;
+        start = 0;
         data_i = 0;
 
-        // Start the pipeline (assert start for several cycles)
-        repeat (10) begin
-            start = 1;
-            #10;
-        end
-        start = 0;
-
         // Wait for pipeline to propagate and observe outputs
-        #100;
-        $display("Output data_o_1 = %h, data_o_2 = %h", data_o_1, data_o_2);
+        #200;
+        $display("Output data_o = %h", data_o);
         #20;
         $finish;
     end
-endmodule
+endmodule                   
