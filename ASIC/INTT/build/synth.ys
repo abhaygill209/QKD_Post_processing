@@ -1,0 +1,29 @@
+# Auto-generated Yosys synthesis script
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/INTT_engine.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/MontgomeryReductionUnit.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/Delay_unit.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/ButterflyUnitGS.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/Buffer.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/MUX2x1.v
+read_verilog /home/abhay/Hardware_security/QKD/Codes_0.1/RTL/TwiddleRom.v
+
+# Set top module
+hierarchy -check -top INTT_engine
+
+# Full generic synthesis
+synth -top INTT_engine
+
+# Handle inferred memories
+memory_map
+
+# Map flip-flops to SKY130
+dfflibmap -liberty /home/abhay/openPQC/lib/user_project_wrapper.lib
+
+# Map combinational logic to SKY130
+abc -liberty /home/abhay/openPQC/lib/user_project_wrapper.lib
+
+# Cleanup
+clean
+
+# Print cell count and area
+stat -liberty /home/abhay/openPQC/lib/user_project_wrapper.lib
