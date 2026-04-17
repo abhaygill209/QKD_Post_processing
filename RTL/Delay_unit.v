@@ -1,6 +1,7 @@
 module Delay_Unit #(
     parameter DATAWIDTH = 32,
     parameter DEPTH     = 4,
+    parameter LATENCY   = 2,
     parameter N         = 16
 ) (
     // generic inputs 
@@ -8,7 +9,7 @@ module Delay_Unit #(
     // input valid signal 
     input valid_i, stall_i,
     // output valid signal 
-    output reg valid_o,
+    output valid_o,
     // Input 
     input  [DATAWIDTH-1:0] a_i, b_i,
     output [DATAWIDTH-1:0] a_o, b_o
@@ -95,6 +96,17 @@ wire [DATAWIDTH-1:0] b_o_mux;
         .out(b_o)
     );
 
+reg [LATENCY-1:0] valid_sr;
+
+always @(posedge clk_i or posedge rst_i) begin
+    if (rst_i)
+        valid_sr <= 0;
+    else if (!stall_i)
+        valid_sr <= {valid_sr[LATENCY-2:0], valid_i};
+end
+
+assign valid_o = valid_sr[LATENCY-1];
+
     // Logic controll 
     always @(posedge clk_i or posedge rst_i) begin
         if (rst_i) begin 
@@ -102,12 +114,9 @@ wire [DATAWIDTH-1:0] b_o_mux;
             State   <= STAGE1;
             ctrl_2  <= 0;
             ctrl_3  <= 0;
-            valid_o <= 0;
         end else begin 
             // pipeline stall and latch
             if (!stall_i) begin 
-
-            if (valid_i) begin 
                 Counter <= Counter + 1;
                 case (State)
                     STAGE1: begin
@@ -129,7 +138,6 @@ wire [DATAWIDTH-1:0] b_o_mux;
                             Counter <= 1;
                         end 
                         // Valid Output 
-                        valid_o <= 1;
                     end
                     STAGE3: begin 
                         ctrl_2 <= 1;
@@ -139,20 +147,16 @@ wire [DATAWIDTH-1:0] b_o_mux;
                             Counter <= 1;
                         end 
                         // Valid Output 
-                        valid_o <= 1;
                     end 
                 endcase
-            end else 
-                valid_o <= 0;
-            // Everything else is to be latched unless reset 
-            end else 
-                valid_o <= 0;
+            end 
+                
         end  
     end
 
     // Combinational control logic
     always @(*) begin 
-        if (valid_i && !stall_i) begin 
+        if (!stall_i) begin 
             case (State) 
                 STAGE1: begin
                     wr_en_1 = 1;

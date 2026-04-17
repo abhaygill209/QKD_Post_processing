@@ -24,7 +24,7 @@ module tb_NTT;
     // Instantiate DUT
     // ============================================================
     NTT_engine #(
-        .DATAWIDTH(DATAWIDTH)
+        .DATA_WIDTH(DATAWIDTH)
     ) dut (
         .clk(clk_i),
         .rst(rst_i),

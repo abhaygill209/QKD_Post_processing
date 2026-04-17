@@ -13,8 +13,8 @@ if len(sys.argv) > 1:
 else:
     N = 16  # default
 
-MOD = 3329
-DATA_WIDTH = 32
+MOD = 12289
+Q_WIDTH = 14
 
 # Store in SAME folder as script (NO subfolder)
 try:
@@ -24,7 +24,7 @@ except NameError:
 
 OUTPUT_DIR = BASE_DIR
 
-R = 1 << DATA_WIDTH
+R = 1 << Q_WIDTH
 
 # ============================================================
 # ===================== MATH UTILITIES ========================
@@ -124,10 +124,10 @@ def write_stage_files():
 
                 index = i * (N // step)
 
-                val_ntt = twiddles_mont[index] & ((1 << DATA_WIDTH) - 1)
-                val_intt = intt_twiddles_mont[index] & ((1 << DATA_WIDTH) - 1)
+                val_ntt = twiddles_mont[index] & ((1 << Q_WIDTH) - 1)
+                val_intt = intt_twiddles_mont[index] & ((1 << Q_WIDTH) - 1)
 
-                hex_width = DATA_WIDTH // 4
+                hex_width = Q_WIDTH // 4
 
                 f_ntt.write(f"{val_ntt:0{hex_width}X}\n")
                 f_intt.write(f"{val_intt:0{hex_width}X}\n")

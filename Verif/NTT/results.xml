@@ -1,0 +1,8 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1776441691" />
+    <testcase name="test_ntt_streaming" classname="NTT_tb" file="/home/sherlock/BTP/QKD_Post_processing/Verif/NTT/NTT_tb.py" lineno="99" time="0.026571035385131836" sim_time_ns="1140.0" ratio_time="42903.86066919702">
+      <failure error_type="AssertionError" error_msg="NTT MISMATCH (input 1)&#10;  Got:      [36, 12273, 9705, 11913, 6369, 5912, 375, 2581]&#10;  Expected: [36, 1957, 6369, 1500, 12285, 10781, 5912, 10324]&#10;assert [36, 12273, 9705, 11913, 6369, 5912, ...] == [36, 1957, 6369, 1500, 12285, 10781, ...]" />
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -7,6 +7,7 @@ module butterfly_unit_GS #(
     input                       clk,
     input                       rst,
     input                       start,
+    input                       stall,
     input  [DATA_WIDTH-1:0]       a_i, b_i,
     input  [DATA_WIDTH-1:0]     w,
     output wire                 valid_out,
@@ -27,7 +28,8 @@ module butterfly_unit_GS #(
             for (i = 0; i < L; i = i + 1)
                 sum_pipe[i] <= 0;
             diff <= 0;
-        end else begin
+        end 
+        else if(start && !stall) begin
             // mod Q addition
             sum_pipe[0] <= (a_i + b_i >= Q) ? a_i + b_i - Q : a_i + b_i;
             // mod Q subtraction
@@ -46,6 +48,7 @@ module butterfly_unit_GS #(
         .clk(clk),
         .rst(rst),
         .valid_in(start),
+        .stall(stall),
         .b_bar(diff),
         .w_bar(w[Q_WIDTH-1:0]),
         .valid_out(valid_out),
