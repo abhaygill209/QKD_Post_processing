@@ -1,5 +1,5 @@
 module NTT_engine #(
-    parameter N = 2**6,
+    parameter N = 2**3,
     parameter STAGES = $clog2(N),
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
@@ -48,7 +48,8 @@ module NTT_engine #(
             ) butterfly_inst (
                 .clk(clk),
                 .rst(rst),
-                .start(DU_BU_valid_D[i]),
+                .stall(stall_i),
+                .valid_i(DU_BU_valid_D[i]),
                 .valid_out(BU_DU_valid[i]),
                 .a_i(DU_BU_bus_a_D[i]),
                 .b_i(DU_BU_bus_b_D[i]),
@@ -68,9 +69,11 @@ module NTT_engine #(
                     DU_BU_bus_a_D[g] <= 0;
                     DU_BU_bus_b_D[g] <= 0;
                 end else begin
+                    if (!stall_i) begin
                     DU_BU_valid_D[g] <= DU_BU_valid[g];
                     DU_BU_bus_a_D[g] <= DU_BU_bus_a[g];
                     DU_BU_bus_b_D[g] <= DU_BU_bus_b[g];
+                    end 
                 end
             end
         end
@@ -108,6 +111,7 @@ module NTT_engine #(
         .INIT_FILE("../../RTL/TwiddleFactors/stage_1.mem")
     ) t_rom_1 (
         .clk(clk),
+        .stall_i(stall_i),
         .dout(tf_data[1]),
         .addr(tf_addr[1])
     );
@@ -117,35 +121,9 @@ module NTT_engine #(
         .INIT_FILE("../../RTL/TwiddleFactors/stage_2.mem")
     ) t_rom_2 (
         .clk(clk),
+        .stall_i(stall_i),
         .dout(tf_data[2]),
         .addr(tf_addr[2])
-    );
-
-    TwiddleROM #(
-        .STAGE(3),
-        .INIT_FILE("../../RTL/TwiddleFactors/stage_3.mem")
-    ) t_rom_3 (
-        .clk(clk),
-        .dout(tf_data[3]),
-        .addr(tf_addr[3])
-    );
-
-    TwiddleROM #(
-        .STAGE(4),
-        .INIT_FILE("../../RTL/TwiddleFactors/stage_4.mem")
-    ) t_rom_4 (
-        .clk(clk),
-        .dout(tf_data[4]),
-        .addr(tf_addr[4])
-    );
-
-    TwiddleROM #(
-        .STAGE(5),
-        .INIT_FILE("../../RTL/TwiddleFactors/stage_5.mem")
-    ) t_rom_5 (
-        .clk(clk),
-        .dout(tf_data[5]),
-        .addr(tf_addr[5])
     );
 
     assign tf_data[0] = 32'h00000549;
@@ -153,10 +131,10 @@ module NTT_engine #(
     genvar k;
     generate
         for (k = 1; k < STAGES; k = k + 1) begin : tf_rom_ctrl_gen
-            always @(posedge clk or posedge rst) begin
+            always @(posedge clk) begin
                 if (rst)
                     tf_addr[k] <= 0;
-                else if (DU_BU_valid[k]) begin
+                else if (DU_BU_valid[k] && !stall_i) begin
                     if (tf_addr[k] == (1 << k) - 1)
                         tf_addr[k] <= 0;
                     else

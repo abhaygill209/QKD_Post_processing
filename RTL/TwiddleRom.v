@@ -62,7 +62,7 @@ module TwiddleROM #(
     parameter ADDR_WIDTH = 32,
     parameter INIT_FILE = ""
 )(
-    input  wire                   clk,
+    input  wire                   clk, stall_i,
     input  wire [ADDR_WIDTH-1:0]  addr,
     output reg  [DATA_WIDTH-1:0]  dout
 );
@@ -125,10 +125,12 @@ module TwiddleROM #(
     // Synchronous ROM read
     // ============================================================
     always @(posedge clk) begin
-        if (addr < DEPTH)
-            dout <= mem[addr];
-        else
-            dout <= {DATA_WIDTH{1'b0}};
+        if (!stall_i) begin 
+            if (addr < DEPTH)
+                dout <= mem[addr];
+            else
+                dout <= {DATA_WIDTH{1'b0}};
+        end
     end
 
 endmodule

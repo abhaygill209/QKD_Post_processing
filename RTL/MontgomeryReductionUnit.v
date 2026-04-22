@@ -2,10 +2,11 @@ module MontgomeryReductionUnit #(
     parameter Q_WIDTH = 14,
     parameter Q = 12289,
     parameter Q_INV = 12287
+    //R_INV=9216
 )(
     input clk,
     input rst,
-
+    input stall,
     input valid_in,
     input [Q_WIDTH-1:0] b_bar,
     input [Q_WIDTH-1:0] w_bar,
@@ -29,13 +30,20 @@ module MontgomeryReductionUnit #(
     reg [2*Q_WIDTH-1:0] t_s3;
     reg valid_s3;
 
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if (rst) begin
             valid_s1 <= 0;
             valid_s2 <= 0;
             valid_s3 <= 0;
             valid_out <= 0;
-        end else begin
+            x_s1 <= 0;
+            x_s2 <= 0;
+            s_s2 <= 0;
+            t_s3 <= 0;
+            c_bar <= 0;
+        end 
+        else if(!stall) begin
+            if (valid_in) begin 
 
             // Stage 1
             valid_s1 <= valid_in;
@@ -64,6 +72,7 @@ module MontgomeryReductionUnit #(
                     c_bar <= (t_s3 >> Q_WIDTH);
             end
 
+            end
         end
     end
 

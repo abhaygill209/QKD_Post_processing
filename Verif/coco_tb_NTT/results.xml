@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1776883319" />
+    <testcase name="fft_8point_test" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT/tb.py" lineno="91" time="0.006500720977783203" sim_time_ns="390.0" ratio_time="59993.34555857111" />
+  </testsuite>
+</testsuites>

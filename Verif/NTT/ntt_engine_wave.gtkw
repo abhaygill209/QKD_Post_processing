@@ -1,73 +1,53 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Sun Apr  5 19:53:55 2026
+[*] Tue Apr 21 10:31:13 2026
 [*]
 [dumpfile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/NTT/tb_NTT.vcd"
-[dumpfile_mtime] "Sun Apr  5 19:53:42 2026"
-[dumpfile_size] 135252
+[dumpfile_mtime] "Tue Apr 21 10:31:04 2026"
+[dumpfile_size] 23084
 [savefile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/NTT/ntt_engine_wave.gtkw"
-[timestart] 43300
+[timestart] 0
 [size] 1920 1016
 [pos] -1 -1
-*-16.103565 103500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.754651 150900 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_NTT.
 [treeopen] tb_NTT.dut.
+[treeopen] tb_NTT.dut.butterfly_gen[1].
+[treeopen] tb_NTT.dut.butterfly_gen[2].
 [sst_width] 233
-[signals_width] 213
+[signals_width] 187
 [sst_expanded] 1
 [sst_vpaned_height] 280
-@28
-tb_NTT.dut.butterfly_gen[0].butterfly_inst.clk
 @200
--1st Butterfly
+-BUF1
 @28
-tb_NTT.valid_i
+tb_NTT.dut.butterfly_gen[0].butterfly_inst.valid_i
 @22
 tb_NTT.dut.butterfly_gen[0].butterfly_inst.a_i[31:0]
 tb_NTT.dut.butterfly_gen[0].butterfly_inst.b_i[31:0]
-tb_NTT.dut.butterfly_gen[0].butterfly_inst.a_o[31:0]
-tb_NTT.dut.butterfly_gen[0].butterfly_inst.b_o[31:0]
 @28
 tb_NTT.dut.butterfly_gen[0].butterfly_inst.valid_out
-@200
--1st DU
-@28
-tb_NTT.dut.delay_gen[0].Delay_inst.valid_i
-tb_NTT.dut.delay_gen[0].Delay_inst.State[1:0]
 @22
-tb_NTT.dut.delay_gen[0].Delay_inst.a_i[31:0]
-tb_NTT.dut.delay_gen[0].Delay_inst.b_i[31:0]
-tb_NTT.dut.delay_gen[0].Delay_inst.a_o[31:0]
-tb_NTT.dut.delay_gen[0].Delay_inst.b_o[31:0]
+tb_NTT.dut.butterfly_gen[0].butterfly_inst.a_o[31:0]
+tb_NTT.dut.butterfly_gen[0].butterfly_inst.b_o[31:0]
+tb_NTT.dut.butterfly_gen[0].butterfly_inst.w[31:0]
 @200
--2nd BU
+-BUF2
 @28
-tb_NTT.dut.butterfly_gen[1].butterfly_inst.start
+tb_NTT.dut.butterfly_gen[1].butterfly_inst.valid_i
 @22
-tb_NTT.dut.t_rom_1.dout[31:0]
 tb_NTT.dut.butterfly_gen[1].butterfly_inst.a_i[31:0]
 tb_NTT.dut.butterfly_gen[1].butterfly_inst.b_i[31:0]
 tb_NTT.dut.butterfly_gen[1].butterfly_inst.a_o[31:0]
 tb_NTT.dut.butterfly_gen[1].butterfly_inst.b_o[31:0]
-@28
+@29
 tb_NTT.dut.butterfly_gen[1].butterfly_inst.valid_out
-@200
--2nd DU
-@28
-tb_NTT.dut.delay_gen[1].Delay_inst.valid_i
 @22
-tb_NTT.dut.delay_gen[1].Delay_inst.a_i[31:0]
-tb_NTT.dut.delay_gen[1].Delay_inst.b_i[31:0]
-tb_NTT.dut.delay_gen[1].Delay_inst.a_o[31:0]
-tb_NTT.dut.delay_gen[1].Delay_inst.b_o[31:0]
-@28
-tb_NTT.dut.delay_gen[1].Delay_inst.valid_o
+tb_NTT.dut.butterfly_gen[1].butterfly_inst.w[31:0]
 @200
--3rd BU
+-BUF3
 @28
-tb_NTT.dut.butterfly_gen[2].butterfly_inst.start
-@23
-tb_NTT.dut.t_rom_2.dout[31:0]
+tb_NTT.dut.butterfly_gen[2].butterfly_inst.valid_i
 @22
 tb_NTT.dut.butterfly_gen[2].butterfly_inst.a_i[31:0]
 tb_NTT.dut.butterfly_gen[2].butterfly_inst.b_i[31:0]
@@ -75,5 +55,7 @@ tb_NTT.dut.butterfly_gen[2].butterfly_inst.a_o[31:0]
 tb_NTT.dut.butterfly_gen[2].butterfly_inst.b_o[31:0]
 @28
 tb_NTT.dut.butterfly_gen[2].butterfly_inst.valid_out
+@22
+tb_NTT.dut.butterfly_gen[2].butterfly_inst.w[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

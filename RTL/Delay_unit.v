@@ -142,11 +142,8 @@ wire [DATAWIDTH-1:0] b_o_mux;
                         valid_o <= 1;
                     end 
                 endcase
-            end else 
-                valid_o <= 0;
-            // Everything else is to be latched unless reset 
-            end else 
-                valid_o <= 0;
+            end 
+            end 
         end  
     end
 

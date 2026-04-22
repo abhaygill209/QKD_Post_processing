@@ -7,16 +7,24 @@ import sys
 # ===================== USER CONFIG ===========================
 # ============================================================
 
+# Example:
+# python twiddle_gen.py 64
 
-if len(sys.argv) > 1:
-    N = int(sys.argv[1])
-else:
-    N = 16  # default
+N = 64
+for arg in sys.argv[1:]:
+    try:
+        N = int(arg)
+        break
+    except ValueError:
+        continue
 
 MOD = 3329
 DATA_WIDTH = 32
 
-# Store in SAME folder as script (NO subfolder)
+# Fixed hardware primitive root (Kyber compatible)
+PRIMITIVE_ROOT = 17
+
+# Store in SAME folder as script
 try:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -30,47 +38,36 @@ R = 1 << DATA_WIDTH
 # ===================== MATH UTILITIES ========================
 # ============================================================
 
-def prime_factors(n):
-    factors = set()
-    d = 2
-    while d * d <= n:
-        while n % d == 0:
-            factors.add(d)
-            n //= d
-        d += 1
-    if n > 1:
-        factors.add(n)
-    return factors
-
-def find_primitive_root(mod):
-    phi = mod - 1
-    factors = prime_factors(phi)
-
-    for g in range(2, mod):
-        ok = True
-        for f in factors:
-            if pow(g, phi // f, mod) == 1:
-                ok = False
-                break
-        if ok:
-            return g
-
 def compute_omega(N, mod, g):
+    """
+    Compute primitive N-th root of unity
+    """
     return pow(g, (mod - 1) // N, mod)
+
 
 # ============================================================
 # ===================== MONTGOMERY ============================
 # ============================================================
 
 def to_montgomery(x, mod, R):
+    """
+    Convert normal -> Montgomery
+    """
     return (x * R) % mod
+
+
+def hex32(x):
+    """
+    32-bit uppercase hex
+    """
+    return f"{x & 0xFFFFFFFF:08X}"
+
 
 # ============================================================
 # ===================== CLEAN DIRECTORY =======================
 # ============================================================
 
 def clean_directory():
-    # Only remove .mem files in same directory
     files = glob.glob(os.path.join(OUTPUT_DIR, "stage_*.mem"))
     for f in files:
         os.remove(f)
@@ -81,61 +78,94 @@ def clean_directory():
 
     print("Old memory files removed")
 
+
 # ============================================================
 # ===================== MAIN =================================
 # ============================================================
 
 def write_stage_files():
+
     clean_directory()
 
-    print(f"\nMOD = {MOD}, N = {N}, R = {R}")
+    print("================================================")
+    print("Twiddle ROM Generator (Montgomery / HEX)")
+    print("================================================")
+    print(f"N               = {N}")
+    print(f"MOD             = {MOD}")
+    print(f"DATA_WIDTH      = {DATA_WIDTH}")
+    print(f"Primitive Root  = {PRIMITIVE_ROOT}")
+    print(f"R               = 2^{DATA_WIDTH}")
+    print("================================================")
 
-    # Primitive root
-    g = find_primitive_root(MOD)
-    print(f"Primitive root = {g}")
+    # --------------------------------------------------------
+    # Root of unity
+    # --------------------------------------------------------
+    omega = compute_omega(N, MOD, PRIMITIVE_ROOT)
 
-    # Omega
-    omega = compute_omega(N, MOD, g)
-    print(f"Omega = {omega}")
+    print(f"Omega = {omega} (0x{omega:08X})")
 
-    # Twiddles
+    # --------------------------------------------------------
+    # Full twiddle tables
+    # --------------------------------------------------------
     twiddles = [pow(omega, k, MOD) for k in range(N // 2)]
+
+    # Inverse twiddles
     intt_twiddles = [twiddles[0]] + twiddles[:0:-1]
 
-    # Montgomery
+    # Convert to Montgomery
     twiddles_mont = [to_montgomery(w, MOD, R) for w in twiddles]
     intt_twiddles_mont = [to_montgomery(w, MOD, R) for w in intt_twiddles]
 
     stages = int(math.log2(N))
 
     # ========================================================
-    # Write NTT + INTT stage files (SKIP stage 0)
+    # Write NTT + INTT stage files
+    # ========================================================
+    # stage_1 -> stage_(stages-1)
+    # stage 0 skipped because twiddle always = 1
     # ========================================================
 
     for stage in range(1, stages):
+
         step = 2 ** (stage + 1)
         half_step = step // 2
 
         ntt_file = os.path.join(OUTPUT_DIR, f"stage_{stage}.mem")
         intt_file = os.path.join(OUTPUT_DIR, f"intt_stage_{stage}.mem")
 
+        print("\n================================================")
+        print(f"STAGE {stage}")
+        print(f"Butterfly span      = {step}")
+        print(f"Twiddles per stage  = {half_step}")
+        print("================================================")
+
         with open(ntt_file, "w") as f_ntt, open(intt_file, "w") as f_intt:
+
             for i in range(half_step):
 
                 index = i * (N // step)
 
-                val_ntt = twiddles_mont[index] & ((1 << DATA_WIDTH) - 1)
-                val_intt = intt_twiddles_mont[index] & ((1 << DATA_WIDTH) - 1)
+                val_ntt = twiddles_mont[index]
+                val_intt = intt_twiddles_mont[index]
 
-                hex_width = DATA_WIDTH // 4
+                # Write files
+                f_ntt.write(f"{hex32(val_ntt)}\n")
+                f_intt.write(f"{hex32(val_intt)}\n")
 
-                f_ntt.write(f"{val_ntt:0{hex_width}X}\n")
-                f_intt.write(f"{val_intt:0{hex_width}X}\n")
+                # Print copy-paste friendly output
+                print(
+                    f"i={i:2d} | "
+                    f"tw_idx={index:2d} | "
+                    f"NTT={hex32(val_ntt)} | "
+                    f"INTT={hex32(val_intt)}"
+                )
 
-        print(f"stage_{stage}.mem ({half_step} entries)")
-        print(f"intt_stage_{stage}.mem ({half_step} entries)")
+        print(f"\nWritten: stage_{stage}.mem")
+        print(f"Written: intt_stage_{stage}.mem")
 
-    print("\nDone.\n")
+    print("\n================================================")
+    print("Twiddle ROM generation complete.")
+    print("================================================")
 
 
 if __name__ == "__main__":

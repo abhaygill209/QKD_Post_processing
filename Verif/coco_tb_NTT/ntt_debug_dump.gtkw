@@ -1,0 +1,104 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Wed Apr 22 09:30:57 2026
+[*]
+[dumpfile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT/dump.vcd"
+[dumpfile_mtime] "Wed Apr 22 09:28:32 2026"
+[dumpfile_size] 8486
+[savefile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT/ntt_debug_dump.gtkw"
+[timestart] 148100
+[size] 1920 1016
+[pos] -1 -1
+*-16.000000 278500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] NTT_axis_ip.
+[treeopen] NTT_axis_ip.ntt_inst.
+[treeopen] NTT_axis_ip.ntt_inst.butterfly_gen[1].
+[treeopen] NTT_axis_ip.ntt_inst.butterfly_gen[2].
+[treeopen] NTT_axis_ip.ntt_inst.delay_gen[1].
+[sst_width] 233
+[signals_width] 294
+[sst_expanded] 1
+[sst_vpaned_height] 280
+@200
+-AXIS
+@22
+NTT_axis_ip.s_axis_tdata[63:0]
+@28
+NTT_axis_ip.s_axis_tready
+NTT_axis_ip.s_axis_tvalid
+NTT_axis_ip.s_axis_tlast
+@420
+NTT_axis_ip.in_data_count
+@421
+NTT_axis_ip.out_data_count
+@22
+NTT_axis_ip.m_axis_tdata[63:0]
+@28
+NTT_axis_ip.m_axis_tready
+NTT_axis_ip.m_axis_tvalid
+NTT_axis_ip.m_axis_tlast
+@200
+-1st BUF
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.stall
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.valid_i
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.a_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.b_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.a_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.b_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.w[31:0]
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.valid_out
+@200
+-1DU
+@28
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.valid_i
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.stall_i
+@22
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.a_i[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.b_i[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.a_o[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.b_o[31:0]
+@28
+NTT_axis_ip.ntt_inst.delay_gen[0].Delay_inst.valid_o
+@200
+-2nd BUF
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.valid_i
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.stall
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.a_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.b_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.a_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.b_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.w[31:0]
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.valid_out
+@200
+-2nd DU
+@28
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.valid_i
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.stall_i
+@22
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.a_i[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.b_i[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.a_o[31:0]
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.b_o[31:0]
+@28
+NTT_axis_ip.ntt_inst.delay_gen[1].Delay_inst.valid_o
+@200
+-3rd BUF
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.valid_i
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.stall
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.a_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.b_i[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.a_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.b_o[31:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.w[31:0]
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[2].butterfly_inst.valid_out
+[pattern_trace] 1
+[pattern_trace] 0
