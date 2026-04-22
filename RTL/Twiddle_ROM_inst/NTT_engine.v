@@ -1,5 +1,5 @@
 module NTT_engine #(
-    parameter N = 2**3,
+    parameter N = 2**8,
     parameter STAGES = $clog2(N),
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
@@ -28,7 +28,14 @@ module NTT_engine #(
     wire [DATA_WIDTH-1:0] DU_BU_bus_a   [1:STAGES-1];
     wire [DATA_WIDTH-1:0] DU_BU_bus_b   [1:STAGES-1];
 
-    wire [DATA_WIDTH-1:0] tf_data       [0:STAGES-1];
+    wire [DATA_WIDTH-1:0] tf_data_0;
+    wire [DATA_WIDTH-1:0] tf_data_1;
+    wire [DATA_WIDTH-1:0] tf_data_2;
+    wire [DATA_WIDTH-1:0] tf_data_3;
+    wire [DATA_WIDTH-1:0] tf_data_4;
+    wire [DATA_WIDTH-1:0] tf_data_5;
+    wire [DATA_WIDTH-1:0] tf_data_6;
+    wire [DATA_WIDTH-1:0] tf_data_7;
 
     reg BU_DU_valid   [0:STAGES-1];
     reg DU_BU_valid   [1:STAGES-1];
@@ -53,7 +60,16 @@ module NTT_engine #(
                 .valid_out(BU_DU_valid[i]),
                 .a_i(DU_BU_bus_a_D[i]),
                 .b_i(DU_BU_bus_b_D[i]),
-                .w(tf_data[i]),
+                .w(
+                    (i==0) ? tf_data_0 :
+                    (i==1) ? tf_data_1 :
+                    (i==2) ? tf_data_2 :
+                    (i==3) ? tf_data_3 :
+                    (i==4) ? tf_data_4 :
+                    (i==5) ? tf_data_5 :
+                    (i==6) ? tf_data_6 :
+                    tf_data_7
+                ),
                 .a_o(BU_DU_bus_a[i]),
                 .b_o(BU_DU_bus_b[i])
             );
@@ -63,17 +79,17 @@ module NTT_engine #(
     genvar g;
     generate
         for(g = 1; g < STAGES; g = g + 1) begin : delay
-            always @(posedge clk or posedge rst) begin
+            always @(posedge clk) begin
                 if (rst) begin
                     DU_BU_valid_D[g] <= 1'b0;
                     DU_BU_bus_a_D[g] <= 0;
                     DU_BU_bus_b_D[g] <= 0;
                 end else begin
                     if (!stall_i) begin
-                    DU_BU_valid_D[g] <= DU_BU_valid[g];
-                    DU_BU_bus_a_D[g] <= DU_BU_bus_a[g];
-                    DU_BU_bus_b_D[g] <= DU_BU_bus_b[g];
-                    end 
+                        DU_BU_valid_D[g] <= DU_BU_valid[g];
+                        DU_BU_bus_a_D[g] <= DU_BU_bus_a[g];
+                        DU_BU_bus_b_D[g] <= DU_BU_bus_b[g];
+                    end
                 end
             end
         end
@@ -103,30 +119,94 @@ module NTT_engine #(
         end
     endgenerate
 
-    // Bram Instances for Twiddle factors
+    // Twiddle ROM
     reg [ADDR_WIDTH-1:0] tf_addr [1:STAGES-1];
 
     TwiddleROM #(
         .STAGE(1),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
         .INIT_FILE("../../RTL/TwiddleFactors/stage_1.mem")
     ) t_rom_1 (
         .clk(clk),
         .stall_i(stall_i),
-        .dout(tf_data[1]),
+        .dout(tf_data_1),
         .addr(tf_addr[1])
     );
 
     TwiddleROM #(
         .STAGE(2),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
         .INIT_FILE("../../RTL/TwiddleFactors/stage_2.mem")
     ) t_rom_2 (
         .clk(clk),
         .stall_i(stall_i),
-        .dout(tf_data[2]),
+        .dout(tf_data_2),
         .addr(tf_addr[2])
     );
 
-    assign tf_data[0] = 32'h00000549;
+    TwiddleROM #(
+        .STAGE(3),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .INIT_FILE("../../RTL/TwiddleFactors/stage_3.mem")
+    ) t_rom_3 (
+        .clk(clk),
+        .stall_i(stall_i),
+        .dout(tf_data_3),
+        .addr(tf_addr[3])
+    );
+
+    TwiddleROM #(
+        .STAGE(4),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .INIT_FILE("../../RTL/TwiddleFactors/stage_4.mem")
+    ) t_rom_4 (
+        .clk(clk),
+        .stall_i(stall_i),
+        .dout(tf_data_4),
+        .addr(tf_addr[4])
+    );
+
+    TwiddleROM #(
+        .STAGE(5),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .INIT_FILE("../../RTL/TwiddleFactors/stage_5.mem")
+    ) t_rom_5 (
+        .clk(clk),
+        .stall_i(stall_i),
+        .dout(tf_data_5),
+        .addr(tf_addr[5])
+    );
+
+    TwiddleROM #(
+        .STAGE(6),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .INIT_FILE("../../RTL/TwiddleFactors/stage_6.mem")
+    ) t_rom_6 (
+        .clk(clk),
+        .stall_i(stall_i),
+        .dout(tf_data_6),
+        .addr(tf_addr[6])
+    );
+
+    TwiddleROM #(
+        .STAGE(7),
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .INIT_FILE("../../RTL/TwiddleFactors/stage_7.mem")
+    ) t_rom_7 (
+        .clk(clk),
+        .stall_i(stall_i),
+        .dout(tf_data_7),
+        .addr(tf_addr[7])
+    );
+
+    assign tf_data_0 = 32'h000008ED;
 
     genvar k;
     generate

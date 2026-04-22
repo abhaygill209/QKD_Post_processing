@@ -55,7 +55,14 @@ module NTT_axis_ip #(
     // =====================================================
     // NTT Core
     // =====================================================
-    NTT_engine ntt_inst (
+    NTT_engine #(
+        .N(256),
+        .DATA_WIDTH(32),
+        .ADDR_WIDTH(32),
+        .Q(3329),
+        .Q_WIDTH(16),
+        .Q_INV(3327)
+    )  ntt_inst (
         .clk(clk),
         .rst(~rstn || (m_axis_tlast && m_axis_tready && m_axis_tvalid)),
 

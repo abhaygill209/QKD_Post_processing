@@ -1,46 +1,64 @@
 import cocotb
-import random
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
-from collections import deque
 
 # =========================================================
-# INPUT DATA (1 → 8)
+# CONFIG
 # =========================================================
-INPUT_SEQUENCE = [1,2,3,4,5,6,7,8]
+N = 256   # 🔥 Change this to 8,16,32,...
+
+INPUT_SEQUENCE = list(range(1, N + 1))
+
+MOD = 3329
+R = 1 << 16
+R_INV = pow(R, -1, MOD)
+
+# =========================================================
+# MONTGOMERY HELPERS
+# =========================================================
+def to_mont(x):
+    return (x * R) % MOD
+
+def from_mont(x):
+    return (x * R_INV) % MOD
 
 
 # =========================================================
-# AXI DRIVER (DETERMINISTIC)
+# AXI DRIVER
 # =========================================================
-async def axi_send_fft_frame(dut, input_log):
+async def axi_send_frame(dut, input_log):
 
     dut.s_axis_tvalid.value = 0
     dut.s_axis_tlast.value  = 0
 
     await RisingEdge(dut.clk)
 
-    # Pack as (1,2), (3,4), ...
-    for i in range(0, len(INPUT_SEQUENCE), 2):
+    for i in range(0, N, 2):
 
-        a = INPUT_SEQUENCE[i]
-        b = INPUT_SEQUENCE[i+1]
+        a_raw = INPUT_SEQUENCE[i]
+        b_raw = INPUT_SEQUENCE[i + 1]
 
-        # 16-bit packing
+        # Convert to Montgomery
+        a = to_mont(a_raw)
+        b = to_mont(b_raw)
+
         data = (b << 32) | a
 
         dut.s_axis_tdata.value = data
         dut.s_axis_tvalid.value = 1
-        dut.s_axis_tlast.value = (i == len(INPUT_SEQUENCE) - 2)
+        dut.s_axis_tlast.value = (i == N - 2)
 
         # Wait for handshake
         while True:
             await RisingEdge(dut.clk)
-
-            if int(dut.s_axis_tvalid.value) and int(dut.s_axis_tready.value):
-                # ✅ Log input when handshake happens
+            if dut.s_axis_tvalid.value and dut.s_axis_tready.value:
                 input_log.append((a, b))
-                dut._log.info(f"📥 INPUT HANDSHAKE: A={a}, B={b}")
+
+                dut._log.info(
+                    f"📥 INPUT: "
+                    f"A_raw={a_raw}, B_raw={b_raw} | "
+                    f"A_mont=0x{a:08X}, B_mont=0x{b:08X}"
+                )
                 break
 
     # Deassert
@@ -50,47 +68,39 @@ async def axi_send_fft_frame(dut, input_log):
 
 
 # =========================================================
-# OUTPUT MONITOR (HANDSHAKE-BASED)
+# OUTPUT MONITOR
 # =========================================================
 async def monitor_output(dut, output_log):
 
     while True:
         await RisingEdge(dut.clk)
 
-        v = int(dut.m_axis_tvalid.value)
-        r = int(dut.m_axis_tready.value)
-        l = int(dut.m_axis_tlast.value)
+        if dut.m_axis_tvalid.value and dut.m_axis_tready.value:
 
-        if v and r:
             data = dut.m_axis_tdata.value.integer
 
-            # ✅ 32-bit unpacking
             a = data & 0xFFFFFFFF
             b = (data >> 32) & 0xFFFFFFFF
 
-            output_log.append((a, b))
+            a_norm = from_mont(a)
+            b_norm = from_mont(b)
+
+            output_log.append((a_norm, b_norm))
 
             dut._log.info(
-                f"📤 OUTPUT HANDSHAKE: A=0x{a:08X}, B=0x{b:08X}, TLAST={l}"
+                f"📤 OUTPUT: "
+                f"A_mont=0x{a:08X}, B_mont=0x{b:08X} | "
+                f"A={a_norm}, B={b_norm}, TLAST={int(dut.m_axis_tlast.value)}"
             )
-
-
-# =========================================================
-# BACKPRESSURE
-# =========================================================
-async def random_backpressure(dut):
-    while True:
-        await RisingEdge(dut.clk)
-        dut.m_axis_tready.value = 1 if random.random() < 0.7 else 0
-        #dut.m_axis_tready.value = 1
 
 
 # =========================================================
 # MAIN TEST
 # =========================================================
 @cocotb.test()
-async def fft_8point_test(dut):
+async def ntt_test(dut):
 
+    # Clock
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
 
     # Reset
@@ -103,36 +113,35 @@ async def fft_8point_test(dut):
     await Timer(50, units="ns")
     dut.rstn.value = 1
 
-    # Logs
+    dut._log.info(f"🚀 Running NTT test with N = {N}")
+
     input_log = []
     output_log = []
 
-    # Start monitor
     cocotb.start_soon(monitor_output(dut, output_log))
-    cocotb.start_soon(random_backpressure(dut))
 
     # =====================================================
-    # SEND FFT INPUT
+    # SEND INPUT
     # =====================================================
-    await axi_send_fft_frame(dut, input_log)
+    await axi_send_frame(dut, input_log)
 
     # =====================================================
-    # WAIT FOR OUTPUT COMPLETION
+    # WAIT FOR OUTPUT
     # =====================================================
-    expected_words = len(INPUT_SEQUENCE) // 2
+    expected_words = N // 2
 
-    timeout = 2000
+    timeout = 5000
     for _ in range(timeout):
         await RisingEdge(dut.clk)
         if len(output_log) >= expected_words:
             break
     else:
-        raise Exception("❌ Timeout waiting for FFT output")
+        raise Exception("❌ Timeout waiting for output")
 
     # =====================================================
-    # PRINT RESULTS
+    # RESULTS
     # =====================================================
-    dut._log.info(f"\n📥 INPUT LOG: {input_log}")
-    dut._log.info(f"📤 OUTPUT LOG: {output_log}")
+    dut._log.info(f"\n📥 INPUT LOG (Mont): {input_log}")
+    dut._log.info(f"📤 OUTPUT LOG (Normal): {output_log}")
 
-    dut._log.info("✅ FFT TEST COMPLETED")
+    dut._log.info("✅ TEST COMPLETED")

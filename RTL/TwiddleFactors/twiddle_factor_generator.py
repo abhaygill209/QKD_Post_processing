@@ -7,10 +7,10 @@ import sys
 # ===================== USER CONFIG ===========================
 # ============================================================
 
-# Example:
-# python twiddle_gen.py 64
+# Usage:
+# python twiddle_gen.py 8
 
-N = 64
+N = 8
 for arg in sys.argv[1:]:
     try:
         N = int(arg)
@@ -21,10 +21,14 @@ for arg in sys.argv[1:]:
 MOD = 3329
 DATA_WIDTH = 32
 
-# Fixed hardware primitive root (Kyber compatible)
+# Kyber primitive root
 PRIMITIVE_ROOT = 17
 
-# Store in SAME folder as script
+# Montgomery configuration (IMPORTANT)
+R_BITS = 16
+R = 1 << R_BITS
+
+# Output directory
 try:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -32,36 +36,29 @@ except NameError:
 
 OUTPUT_DIR = BASE_DIR
 
-R = 1 << DATA_WIDTH
+# ============================================================
+# ===================== UTILITIES =============================
+# ============================================================
 
-# ============================================================
-# ===================== MATH UTILITIES ========================
-# ============================================================
+def is_power_of_two(n):
+    return (n & (n - 1)) == 0 and n != 0
 
 def compute_omega(N, mod, g):
-    """
-    Compute primitive N-th root of unity
-    """
     return pow(g, (mod - 1) // N, mod)
 
-
-# ============================================================
-# ===================== MONTGOMERY ============================
-# ============================================================
-
 def to_montgomery(x, mod, R):
-    """
-    Convert normal -> Montgomery
-    """
     return (x * R) % mod
 
-
 def hex32(x):
-    """
-    32-bit uppercase hex
-    """
     return f"{x & 0xFFFFFFFF:08X}"
 
+def compute_q_inv(q, r_bits):
+    """
+    Compute Q_INV = -q^{-1} mod 2^r_bits
+    """
+    R = 1 << r_bits
+    q_inv = pow(q, -1, R)
+    return (-q_inv) % R
 
 # ============================================================
 # ===================== CLEAN DIRECTORY =======================
@@ -78,12 +75,14 @@ def clean_directory():
 
     print("Old memory files removed")
 
-
 # ============================================================
 # ===================== MAIN =================================
 # ============================================================
 
 def write_stage_files():
+
+    if not is_power_of_two(N):
+        raise ValueError("N must be a power of 2")
 
     clean_directory()
 
@@ -93,24 +92,41 @@ def write_stage_files():
     print(f"N               = {N}")
     print(f"MOD             = {MOD}")
     print(f"DATA_WIDTH      = {DATA_WIDTH}")
+    print(f"R_BITS          = {R_BITS}")
     print(f"Primitive Root  = {PRIMITIVE_ROOT}")
-    print(f"R               = 2^{DATA_WIDTH}")
-    print("================================================")
+
+    # --------------------------------------------------------
+    # Montgomery inverse
+    # --------------------------------------------------------
+    Q_INV = compute_q_inv(MOD, R_BITS)
+
+    print("------------------------------------------------")
+    print(f"Q               = {MOD}")
+    print(f"Q_INV (Mont)    = {Q_INV} (0x{Q_INV:08X})")
+    print(f"Check: (Q * Q_INV) mod 2^{R_BITS} = {(MOD * Q_INV) % (1 << R_BITS)}")
+    print("------------------------------------------------")
 
     # --------------------------------------------------------
     # Root of unity
     # --------------------------------------------------------
     omega = compute_omega(N, MOD, PRIMITIVE_ROOT)
 
-    print(f"Omega = {omega} (0x{omega:08X})")
+    # Sanity checks
+    assert pow(omega, N, MOD) == 1, "Not N-th root"
+    assert pow(omega, N//2, MOD) != 1, "Not primitive"
+
+    print(f"Omega           = {omega} (0x{omega:08X})")
+    print(f"R mod Q         = {R % MOD}")
+    print("================================================")
 
     # --------------------------------------------------------
-    # Full twiddle tables
+    # Twiddles
     # --------------------------------------------------------
     twiddles = [pow(omega, k, MOD) for k in range(N // 2)]
 
-    # Inverse twiddles
-    intt_twiddles = [twiddles[0]] + twiddles[:0:-1]
+    # Correct inverse twiddles
+    omega_inv = pow(omega, MOD - 2, MOD)
+    intt_twiddles = [pow(omega_inv, k, MOD) for k in range(N // 2)]
 
     # Convert to Montgomery
     twiddles_mont = [to_montgomery(w, MOD, R) for w in twiddles]
@@ -119,12 +135,8 @@ def write_stage_files():
     stages = int(math.log2(N))
 
     # ========================================================
-    # Write NTT + INTT stage files
+    # Write stage files
     # ========================================================
-    # stage_1 -> stage_(stages-1)
-    # stage 0 skipped because twiddle always = 1
-    # ========================================================
-
     for stage in range(1, stages):
 
         step = 2 ** (stage + 1)
@@ -148,11 +160,9 @@ def write_stage_files():
                 val_ntt = twiddles_mont[index]
                 val_intt = intt_twiddles_mont[index]
 
-                # Write files
                 f_ntt.write(f"{hex32(val_ntt)}\n")
                 f_intt.write(f"{hex32(val_intt)}\n")
 
-                # Print copy-paste friendly output
                 print(
                     f"i={i:2d} | "
                     f"tw_idx={index:2d} | "
@@ -167,6 +177,10 @@ def write_stage_files():
     print("Twiddle ROM generation complete.")
     print("================================================")
 
+
+# ============================================================
+# ===================== RUN ==================================
+# ============================================================
 
 if __name__ == "__main__":
     write_stage_files()

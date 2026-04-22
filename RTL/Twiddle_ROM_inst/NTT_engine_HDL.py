@@ -6,9 +6,9 @@ import sys
 if len(sys.argv) > 1:
     N = int(sys.argv[1])
 else:
-    N = 16  # default
+    N = 8
 
-# ================= PATH FIX =================
+# ================= PATH =================
 try:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -16,14 +16,13 @@ except NameError:
 
 OUTPUT_FILE = os.path.join(BASE_DIR, "NTT_engine.v")
 
-# =================================================
 
 def is_power_of_two(n):
     return (n & (n - 1)) == 0 and n != 0
 
+
 def generate_ntt_engine():
 
-    # ================= SAFETY =================
     if not is_power_of_two(N):
         raise ValueError("N must be a power of 2")
 
@@ -49,7 +48,7 @@ def generate_ntt_engine():
     lines.append("    output valid_o")
     lines.append(");\n")
 
-    # ================= INPUT BLOCK =================
+    # ================= INPUT =================
     lines.append("    // Binary input")
     lines.append("    always @(*) begin")
     lines.append("        DU_BU_bus_a_D[0] = a_i;")
@@ -64,7 +63,10 @@ def generate_ntt_engine():
     lines.append("    wire [DATA_WIDTH-1:0] DU_BU_bus_a   [1:STAGES-1];")
     lines.append("    wire [DATA_WIDTH-1:0] DU_BU_bus_b   [1:STAGES-1];\n")
 
-    lines.append("    wire [DATA_WIDTH-1:0] tf_data       [0:STAGES-1];\n")
+    # 🔥 FIXED tf_data (NO ARRAY)
+    for i in range(stages):
+        lines.append(f"    wire [DATA_WIDTH-1:0] tf_data_{i};")
+    lines.append("")
 
     lines.append("    reg BU_DU_valid   [0:STAGES-1];")
     lines.append("    reg DU_BU_valid   [1:STAGES-1];\n")
@@ -90,26 +92,37 @@ def generate_ntt_engine():
     lines.append("                .valid_out(BU_DU_valid[i]),")
     lines.append("                .a_i(DU_BU_bus_a_D[i]),")
     lines.append("                .b_i(DU_BU_bus_b_D[i]),")
-    lines.append("                .w(tf_data[i]),")
+
+    # 🔥 SAFE MUX (replaces tf_data[i])
+    lines.append("                .w(")
+    for k in range(stages):
+        if k < stages - 1:
+            lines.append(f"                    (i=={k}) ? tf_data_{k} :")
+        else:
+            lines.append(f"                    tf_data_{k}")
+    lines.append("                ),")
+
     lines.append("                .a_o(BU_DU_bus_a[i]),")
     lines.append("                .b_o(BU_DU_bus_b[i])")
     lines.append("            );")
     lines.append("        end")
     lines.append("    endgenerate\n")
 
-    # ================= DELAY =================
+    # ================= PIPELINE =================
     lines.append("    genvar g;")
     lines.append("    generate")
     lines.append("        for(g = 1; g < STAGES; g = g + 1) begin : delay")
-    lines.append("            always @(posedge clk or posedge rst) begin")
+    lines.append("            always @(posedge clk) begin")
     lines.append("                if (rst) begin")
     lines.append("                    DU_BU_valid_D[g] <= 1'b0;")
     lines.append("                    DU_BU_bus_a_D[g] <= 0;")
     lines.append("                    DU_BU_bus_b_D[g] <= 0;")
     lines.append("                end else begin")
-    lines.append("                    DU_BU_valid_D[g] <= DU_BU_valid[g];")
-    lines.append("                    DU_BU_bus_a_D[g] <= DU_BU_bus_a[g];")
-    lines.append("                    DU_BU_bus_b_D[g] <= DU_BU_bus_b[g];")
+    lines.append("                    if (!stall_i) begin")
+    lines.append("                        DU_BU_valid_D[g] <= DU_BU_valid[g];")
+    lines.append("                        DU_BU_bus_a_D[g] <= DU_BU_bus_a[g];")
+    lines.append("                        DU_BU_bus_b_D[g] <= DU_BU_bus_b[g];")
+    lines.append("                    end")
     lines.append("                end")
     lines.append("            end")
     lines.append("        end")
@@ -142,29 +155,32 @@ def generate_ntt_engine():
     lines.append("    endgenerate\n")
 
     # ================= TWIDDLE ROM =================
-    lines.append("    // Bram Instances for Twiddle factors")
+    lines.append("    // Twiddle ROM")
     lines.append("    reg [ADDR_WIDTH-1:0] tf_addr [1:STAGES-1];\n")
 
     for stage in range(1, stages):
         lines.append("    TwiddleROM #(")
         lines.append(f"        .STAGE({stage}),")
+        lines.append(f"        .DATA_WIDTH(DATA_WIDTH),")
+        lines.append(f"        .ADDR_WIDTH(ADDR_WIDTH),")
         lines.append(f"        .INIT_FILE(\"../../RTL/TwiddleFactors/stage_{stage}.mem\")")
         lines.append(f"    ) t_rom_{stage} (")
         lines.append("        .clk(clk),")
-        lines.append(f"        .dout(tf_data[{stage}]),")
+        lines.append("        .stall_i(stall_i),")
+        lines.append(f"        .dout(tf_data_{stage}),")
         lines.append(f"        .addr(tf_addr[{stage}])")
         lines.append("    );\n")
 
-    lines.append("    assign tf_data[0] = 32'h00000549;\n")
+    lines.append("    assign tf_data_0 = 32'h000008ED;\n")
 
-    # ================= ROM CTRL =================
+    # ================= ADDR CONTROL =================
     lines.append("    genvar k;")
     lines.append("    generate")
     lines.append("        for (k = 1; k < STAGES; k = k + 1) begin : tf_rom_ctrl_gen")
-    lines.append("            always @(posedge clk or posedge rst) begin")
+    lines.append("            always @(posedge clk) begin")
     lines.append("                if (rst)")
     lines.append("                    tf_addr[k] <= 0;")
-    lines.append("                else if (DU_BU_valid[k]) begin")
+    lines.append("                else if (DU_BU_valid[k] && !stall_i) begin")
     lines.append("                    if (tf_addr[k] == (1 << k) - 1)")
     lines.append("                        tf_addr[k] <= 0;")
     lines.append("                    else")
@@ -182,9 +198,8 @@ def generate_ntt_engine():
     with open(OUTPUT_FILE, "w") as f:
         f.write("\n".join(lines))
 
-    print(f"Generated NTT_engine.v for N = {N}")
+    print("✅ FINAL CLEAN RTL GENERATED")
 
 
-# ================= RUN =================
 if __name__ == "__main__":
     generate_ntt_engine()
