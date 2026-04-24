@@ -105,8 +105,9 @@ wire [DATAWIDTH-1:0] b_o_mux;
             valid_o <= 0;
         end else begin 
             // pipeline stall and latch
+            valid_o <= 0;
             if (!stall_i) begin 
-
+            valid_o <= 0;
             if (valid_i) begin 
                 Counter <= Counter + 1;
                 case (State)
@@ -143,7 +144,7 @@ wire [DATAWIDTH-1:0] b_o_mux;
                     end 
                 endcase
             end 
-            end 
+            end
         end  
     end
 

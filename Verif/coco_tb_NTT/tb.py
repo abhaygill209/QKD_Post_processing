@@ -1,11 +1,12 @@
 import cocotb
+import random
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
 
 # =========================================================
 # CONFIG
 # =========================================================
-N = 256   # 🔥 Change this to 8,16,32,...
+N = 256  # 🔥 Change this to 8,16,32,...
 
 INPUT_SEQUENCE = list(range(1, N + 1))
 
@@ -44,13 +45,22 @@ async def axi_send_frame(dut, input_log):
 
         data = (b << 32) | a
 
+        # Drive data once
         dut.s_axis_tdata.value = data
-        dut.s_axis_tvalid.value = 1
         dut.s_axis_tlast.value = (i == N - 2)
 
-        # Wait for handshake
-        while True:
+        accepted = False
+
+        while not accepted:
             await RisingEdge(dut.clk)
+            #dut.s_axis_tvalid.value = 1
+            # 🔥 RANDOM TVALID
+            if random.random() < 0.7:
+                dut.s_axis_tvalid.value = 1
+            else:
+                dut.s_axis_tvalid.value = 0
+
+            # Handshake
             if dut.s_axis_tvalid.value and dut.s_axis_tready.value:
                 input_log.append((a, b))
 
@@ -59,8 +69,16 @@ async def axi_send_frame(dut, input_log):
                     f"A_raw={a_raw}, B_raw={b_raw} | "
                     f"A_mont=0x{a:08X}, B_mont=0x{b:08X}"
                 )
-                break
 
+                accepted = True
+
+        # After acceptance, deassert valid for 1 cycle (optional but clean)
+        dut.s_axis_tvalid.value = 0
+        await RisingEdge(dut.clk)
+
+    # Deassert at end
+    dut.s_axis_tvalid.value = 0
+    dut.s_axis_tlast.value  = 0
     # Deassert
     await RisingEdge(dut.clk)
     dut.s_axis_tvalid.value = 0
@@ -108,6 +126,10 @@ async def ntt_test(dut):
     dut.s_axis_tvalid.value = 0
     dut.s_axis_tdata.value = 0
     dut.s_axis_tlast.value = 0
+    # if random.random() < 0.7:
+    #     dut.m_axis_tready.value = 1
+    # else:
+    #     dut.m_axis_tready.value = 0
     dut.m_axis_tready.value = 1
 
     await Timer(50, units="ns")
