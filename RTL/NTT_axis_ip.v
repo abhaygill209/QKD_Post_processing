@@ -1,8 +1,8 @@
 `timescale 1 ns / 1 ps
 
 module NTT_axis_ip #(
-    parameter integer DATA_WIDTH = 32,
-    parameter integer C_AXIS_TDATA_WIDTH = 64
+    parameter integer DATA_WIDTH = 16,
+    parameter integer C_AXIS_TDATA_WIDTH = 32
 )(
     input wire clk,
     input wire rstn,
@@ -57,8 +57,8 @@ module NTT_axis_ip #(
     // =====================================================
     NTT_engine #(
         .N(256),
-        .DATA_WIDTH(32),
-        .ADDR_WIDTH(32),
+        .DATA_WIDTH(16),
+        .ADDR_WIDTH(16),
         .Q(3329),
         .Q_WIDTH(16),
         .Q_INV(3327)

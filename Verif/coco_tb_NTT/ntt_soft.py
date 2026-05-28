@@ -1,134 +1,162 @@
-import math
-
-# ============================================================
+# =========================================================
 # CONFIG
-# ============================================================
+# =========================================================
 MOD = 3329
+N = 256
 PRIMITIVE_ROOT = 17
 
-N = 256   # 🔥 change this to anything (8,16,32,...)
+INPUT_SEQUENCE = list(range(1, N + 1))
 
-# Montgomery
-R_BITS = 16
-R = 1 << R_BITS
-R_INV = pow(R, -1, MOD)
 
-# ============================================================
-# HELPERS
-# ============================================================
-
-def to_mont(x):
-    return (x * R) % MOD
-
-def from_mont(x):
-    return (x * R_INV) % MOD
-
-def mont_mul(a, b):
-    return (a * b * R_INV) % MOD
-
-def hex32(x):
-    return f"0x{x & 0xFFFFFFFF:08X}"
-
-# ============================================================
-# ROOT
-# ============================================================
-
-def compute_omega():
+# =========================================================
+# ROOT OF UNITY
+# =========================================================
+def get_omega():
     return pow(PRIMITIVE_ROOT, (MOD - 1) // N, MOD)
 
-# ============================================================
-# BUTTERFLY
-# ============================================================
 
-def butterfly(a, b, w, tag=""):
-    t = mont_mul(b, w)
-    a_out = (a + t) % MOD
-    b_out = (a - t) % MOD
+# =========================================================
+# BIT REVERSAL
+# =========================================================
+def bit_reverse(x, bits):
+    y = 0
+    for i in range(bits):
+        if (x >> i) & 1:
+            y |= 1 << (bits - 1 - i)
+    return y
 
-    print(f"{tag} | w={hex32(w)} | t={hex32(t)} | a'={hex32(a_out)}, b'={hex32(b_out)}")
-    return a_out, b_out
 
-# ============================================================
-# GENERIC CT NTT
-# ============================================================
+def bit_reverse_array(a):
+    n = len(a)
+    bits = n.bit_length() - 1
+    res = [0] * n
+    for i in range(n):
+        res[bit_reverse(i, bits)] = a[i]
+    return res
 
-def ntt_ct(x):
 
-    assert (len(x) & (len(x)-1)) == 0, "N must be power of 2"
+# =========================================================
+# NTT (DIT - with bit reversal)
+# =========================================================
+def ntt(a):
+    a = bit_reverse_array(a.copy())
+    omega = get_omega()
 
-    N = len(x)
-    logN = int(math.log2(N))
+    length = 2
+    while length <= N:
+        w_len = pow(omega, N // length, MOD)
 
-    omega = compute_omega()
+        for i in range(0, N, length):
+            w = 1
+            for j in range(length // 2):
+                u = a[i + j]
+                v = (a[i + j + length // 2] * w) % MOD
 
-    print(f"\nN = {N}")
-    print(f"Primitive root ω = {hex32(omega)}")
+                a[i + j] = (u + v) % MOD
+                a[i + j + length // 2] = (u - v) % MOD
 
-    # Twiddles
-    W_normal = [pow(omega, i, MOD) for i in range(N)]
-    W = [to_mont(w) for w in W_normal]
+                w = (w * w_len) % MOD
 
-    print("\n===== TWIDDLES (HEX) =====")
-    for i, w in enumerate(W):
-        print(f"ω^{i} = {hex32(w)}")
+        length *= 2
 
-    # Convert input
-    x = [to_mont(v) for v in x]
+    return a
 
-    print("\nInput (Mont HEX):")
-    for i, val in enumerate(x):
-        print(f"x[{i}] = {hex32(val)}")
 
-    # ============================================================
-    # GENERIC STAGES
-    # ============================================================
-    for stage in range(logN):
+# =========================================================
+# NTT (NO bit reversal → many HW designs match this)
+# =========================================================
+def ntt_no_bitrev(a):
+    a = a.copy()
+    omega = get_omega()
 
-        m = 1 << (stage + 1)
-        half = m >> 1
+    length = 2
+    while length <= N:
+        w_len = pow(omega, N // length, MOD)
 
-        print(f"\n===== STAGE {stage+1} =====")
-        print(f"m = {m}, half = {half}")
+        for i in range(0, N, length):
+            w = 1
+            for j in range(length // 2):
+                u = a[i + j]
+                v = (a[i + j + length // 2] * w) % MOD
 
-        for k in range(0, N, m):
-            for j in range(half):
+                a[i + j] = (u + v) % MOD
+                a[i + j + length // 2] = (u - v) % MOD
 
-                tw_idx = j * (N // m)
-                w = W[tw_idx]
+                w = (w * w_len) % MOD
 
-                i1 = k + j
-                i2 = k + j + half
+        length *= 2
 
-                x[i1], x[i2] = butterfly(
-                    x[i1], x[i2], w,
-                    tag=f"S{stage+1} BF({i1},{i2}) uses ω^{tw_idx}"
-                )
+    return a
 
-        print(f"After Stage {stage+1}:")
-        for i, val in enumerate(x):
-            print(f"x[{i}] = {hex32(val)}")
 
-    # Convert back
-    x_out = [from_mont(v) for v in x]
+# =========================================================
+# FLATTEN HW OUTPUT (pairs → full vector)
+# =========================================================
+def flatten_pairs(pairs):
+    res = []
+    for a, b in pairs:
+        res.append(a)
+        res.append(b)
+    return res
 
-    print("\nFinal Output (HEX):")
-    for i, val in enumerate(x_out):
-        print(f"X[{i}] = {hex32(val)}")
 
-    return x_out
+# =========================================================
+# ================== USER INPUT ============================
+# =========================================================
+# 🔥 PASTE YOUR COCOTB FRAME OUTPUT HERE
+# Format: [(A0,B0), (A1,B1), ...]
+# Example placeholder:
 
-# ============================================================
-# TEST
-# ============================================================
+hw_pairs = [
+    # (a, b),
+    # (a, b),
+]
 
+# =========================================================
+# MAIN CHECK
+# =========================================================
 if __name__ == "__main__":
 
-    input_data = list(range(1, N+1))
+    # Reference outputs
+    ref_bitrev = ntt(INPUT_SEQUENCE)
+    ref_natural = ntt_no_bitrev(INPUT_SEQUENCE)
 
-    print("Input:")
-    for i, v in enumerate(input_data):
-        print(f"x[{i}] = {hex32(v)}")
+    print("\n=== REFERENCE (BIT-REVERSED ORDER) ===")
+    for i, v in enumerate(ref_bitrev):
+        print(f"{i:3d}: {v}")
 
-    result = ntt_ct(input_data)
+    print("\n=== REFERENCE (NATURAL ORDER) ===")
+    for i, v in enumerate(ref_natural):
+        print(f"{i:3d}: {v}")
 
-    print("\nFinal NTT Output (decimal):", result)
+    # If user pasted HW output → compare
+    if hw_pairs:
+        hw = flatten_pairs(hw_pairs)
+
+        print("\n=== COMPARISON ===")
+
+        match_bitrev = True
+        match_natural = True
+
+        for i in range(N):
+            if hw[i] != ref_bitrev[i]:
+                match_bitrev = False
+            if hw[i] != ref_natural[i]:
+                match_natural = False
+
+        if match_bitrev:
+            print("✅ MATCHES BIT-REVERSED NTT")
+
+        if match_natural:
+            print("✅ MATCHES NATURAL ORDER NTT")
+
+        if not match_bitrev and not match_natural:
+            print("❌ NO MATCH — first mismatch:")
+
+            for i in range(N):
+                if hw[i] != ref_bitrev[i] and hw[i] != ref_natural[i]:
+                    print(
+                        f"Index {i}: HW={hw[i]}, "
+                        f"BITREV={ref_bitrev[i]}, NATURAL={ref_natural[i]}"
+                    )
+                    break

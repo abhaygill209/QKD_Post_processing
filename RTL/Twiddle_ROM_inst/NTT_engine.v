@@ -37,8 +37,8 @@ module NTT_engine #(
     wire [DATA_WIDTH-1:0] tf_data_6;
     wire [DATA_WIDTH-1:0] tf_data_7;
 
-    reg BU_DU_valid   [0:STAGES-1];
-    reg DU_BU_valid   [1:STAGES-1];
+    wire BU_DU_valid   [0:STAGES-1];
+    wire DU_BU_valid   [1:STAGES-1];
 
     reg                  DU_BU_valid_D [0:STAGES-1];
     reg [DATA_WIDTH-1:0] DU_BU_bus_a_D [0:STAGES-1];
@@ -99,25 +99,117 @@ module NTT_engine #(
     assign a_o     = BU_DU_bus_a[STAGES-1];
     assign b_o     = BU_DU_bus_b[STAGES-1];
 
-    genvar j;
-    generate
-        for (j = 0; j < STAGES-1; j = j + 1) begin : delay_gen
-            Delay_Unit #(
-                .DATAWIDTH(DATA_WIDTH),
-                .DEPTH(2**(j+2))
-            ) Delay_inst (
-                .clk_i(clk),
-                .rst_i(rst),
-                .stall_i(stall_i),
-                .valid_i(BU_DU_valid[j]),
-                .valid_o(DU_BU_valid[j+1]),
-                .a_i(BU_DU_bus_a[j]),
-                .b_i(BU_DU_bus_b[j]),
-                .a_o(DU_BU_bus_a[j+1]),
-                .b_o(DU_BU_bus_b[j+1])
-            );
-        end
-    endgenerate
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(1),
+        .DEPTH(6)
+    ) Delay_inst_1 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[0]),
+        .valid_o(DU_BU_valid[1]),
+        .a_i(BU_DU_bus_a[0]),
+        .b_i(BU_DU_bus_b[0]),
+        .a_o(DU_BU_bus_a[1]),
+        .b_o(DU_BU_bus_b[1])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(2),
+        .DEPTH(8)
+    ) Delay_inst_2 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[1]),
+        .valid_o(DU_BU_valid[2]),
+        .a_i(BU_DU_bus_a[1]),
+        .b_i(BU_DU_bus_b[1]),
+        .a_o(DU_BU_bus_a[2]),
+        .b_o(DU_BU_bus_b[2])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(3),
+        .DEPTH(14)
+    ) Delay_inst_3 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[2]),
+        .valid_o(DU_BU_valid[3]),
+        .a_i(BU_DU_bus_a[2]),
+        .b_i(BU_DU_bus_b[2]),
+        .a_o(DU_BU_bus_a[3]),
+        .b_o(DU_BU_bus_b[3])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(4),
+        .DEPTH(26)
+    ) Delay_inst_4 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[3]),
+        .valid_o(DU_BU_valid[4]),
+        .a_i(BU_DU_bus_a[3]),
+        .b_i(BU_DU_bus_b[3]),
+        .a_o(DU_BU_bus_a[4]),
+        .b_o(DU_BU_bus_b[4])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(5),
+        .DEPTH(50)
+    ) Delay_inst_5 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[4]),
+        .valid_o(DU_BU_valid[5]),
+        .a_i(BU_DU_bus_a[4]),
+        .b_i(BU_DU_bus_b[4]),
+        .a_o(DU_BU_bus_a[5]),
+        .b_o(DU_BU_bus_b[5])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(6),
+        .DEPTH(98)
+    ) Delay_inst_6 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[5]),
+        .valid_o(DU_BU_valid[6]),
+        .a_i(BU_DU_bus_a[5]),
+        .b_i(BU_DU_bus_b[5]),
+        .a_o(DU_BU_bus_a[6]),
+        .b_o(DU_BU_bus_b[6])
+    );
+
+    Delay_Unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .STAGE(7),
+        .DEPTH(128)
+    ) Delay_inst_7 (
+        .clk_i(clk),
+        .rst_i(rst),
+        .stall_i(stall_i),
+        .valid_i(BU_DU_valid[6]),
+        .valid_o(DU_BU_valid[7]),
+        .a_i(BU_DU_bus_a[6]),
+        .b_i(BU_DU_bus_b[6]),
+        .a_o(DU_BU_bus_a[7]),
+        .b_o(DU_BU_bus_b[7])
+    );
 
     // Twiddle ROM
     reg [ADDR_WIDTH-1:0] tf_addr [1:STAGES-1];
@@ -206,7 +298,7 @@ module NTT_engine #(
         .addr(tf_addr[7])
     );
 
-    assign tf_data_0 = 32'h000008ED;
+    assign tf_data_0 = 16'h08ED;
 
     genvar k;
     generate

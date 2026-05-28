@@ -116,54 +116,68 @@ async def monitor_output(dut, output_log):
 # MAIN TEST
 # =========================================================
 @cocotb.test()
-async def ntt_test(dut):
+async def ntt_repeatability_test(dut):
 
-    # Clock
     cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
 
-    # Reset
-    dut.rstn.value = 0
-    dut.s_axis_tvalid.value = 0
-    dut.s_axis_tdata.value = 0
-    dut.s_axis_tlast.value = 0
-    # if random.random() < 0.7:
-    #     dut.m_axis_tready.value = 1
-    # else:
-    #     dut.m_axis_tready.value = 0
-    dut.m_axis_tready.value = 1
+    NUM_RUNS = 5   # 🔥 Number of repetitions
 
-    await Timer(50, units="ns")
-    dut.rstn.value = 1
+    all_outputs = []
 
-    dut._log.info(f"🚀 Running NTT test with N = {N}")
+    for run in range(NUM_RUNS):
 
-    input_log = []
-    output_log = []
+        dut._log.info(f"\n🔁 RUN {run+1}/{NUM_RUNS}")
 
-    cocotb.start_soon(monitor_output(dut, output_log))
+        # Reset DUT each run
+        dut.rstn.value = 0
+        dut.s_axis_tvalid.value = 0
+        dut.s_axis_tdata.value = 0
+        dut.s_axis_tlast.value = 0
+        dut.m_axis_tready.value = 1
+
+        await Timer(50, units="ns")
+        dut.rstn.value = 1
+
+        input_log = []
+        output_log = []
+
+        cocotb.start_soon(monitor_output(dut, output_log))
+
+        # Send same input every time
+        await axi_send_frame(dut, input_log)
+
+        # Wait for output
+        expected_words = N // 2
+
+        timeout = 5000
+        for _ in range(timeout):
+            await RisingEdge(dut.clk)
+            if len(output_log) >= expected_words:
+                break
+        else:
+            raise Exception(f"❌ Timeout in run {run}")
+
+        dut._log.info(f"📤 OUTPUT RUN {run}: {output_log}")
+
+        all_outputs.append(output_log.copy())
 
     # =====================================================
-    # SEND INPUT
+    # 🔍 REPEATABILITY CHECK
     # =====================================================
-    await axi_send_frame(dut, input_log)
+    reference = all_outputs[0]
 
-    # =====================================================
-    # WAIT FOR OUTPUT
-    # =====================================================
-    expected_words = N // 2
+    for i, out in enumerate(all_outputs[1:], start=1):
 
-    timeout = 5000
-    for _ in range(timeout):
-        await RisingEdge(dut.clk)
-        if len(output_log) >= expected_words:
-            break
-    else:
-        raise Exception("❌ Timeout waiting for output")
+        if out != reference:
+            dut._log.error(f"❌ Mismatch in run {i}!")
 
-    # =====================================================
-    # RESULTS
-    # =====================================================
-    dut._log.info(f"\n📥 INPUT LOG (Mont): {input_log}")
-    dut._log.info(f"📤 OUTPUT LOG (Normal): {output_log}")
+            for idx, (a, b) in enumerate(zip(reference, out)):
+                if a != b:
+                    dut._log.error(
+                        f"Mismatch at index {idx}: "
+                        f"ref={a}, run{i}={b}"
+                    )
 
-    dut._log.info("✅ TEST COMPLETED")
+            raise AssertionError("❌ Output is NOT repeatable")
+
+    dut._log.info("✅ Output is perfectly repeatable across runs!")

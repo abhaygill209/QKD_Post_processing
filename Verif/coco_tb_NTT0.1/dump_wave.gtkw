@@ -1,0 +1,77 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Thu May 28 18:54:36 2026
+[*]
+[dumpfile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT0.1/dump.vcd"
+[dumpfile_mtime] "Thu May 28 18:45:38 2026"
+[dumpfile_size] 6019978
+[savefile] "/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT0.1/dump_wave.gtkw"
+[timestart] 1977200
+[size] 1920 1016
+[pos] 0 27
+*-16.000000 190100 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] NTT_axis_ip.
+[treeopen] NTT_axis_ip.ntt_inst.
+[treeopen] NTT_axis_ip.ntt_inst.butterfly_gen[0].
+[treeopen] NTT_axis_ip.ntt_inst.butterfly_gen[1].
+[treeopen] NTT_axis_ip.ntt_inst.Delay_inst_1.
+[treeopen] NTT_axis_ip.ntt_inst.Delay_inst_6.
+[sst_width] 233
+[signals_width] 296
+[sst_expanded] 1
+[sst_vpaned_height] 280
+@28
+NTT_axis_ip.rstn
+@22
+NTT_axis_ip.s_axis_tdata[31:0]
+@28
+NTT_axis_ip.s_axis_tready
+NTT_axis_ip.s_axis_tvalid
+NTT_axis_ip.s_axis_tlast
+@22
+NTT_axis_ip.m_axis_tdata[31:0]
+@28
+NTT_axis_ip.m_axis_tready
+NTT_axis_ip.m_axis_tvalid
+NTT_axis_ip.m_axis_tlast
+@200
+-BUF 1
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.valid_i
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.a_i[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.b_i[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.a_o[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.b_o[15:0]
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.valid_out
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[0].butterfly_inst.w[15:0]
+@200
+-
+-DELAY 1
+-
+-BUF 2
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.valid_i
+@22
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.a_i[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.b_i[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.a_o[15:0]
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.b_o[15:0]
+@28
+NTT_axis_ip.ntt_inst.butterfly_gen[1].butterfly_inst.valid_out
+@200
+-Delay 2
+@22
+NTT_axis_ip.ntt_inst.Delay_inst_1.a_i[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_1.b_i[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_1.a_o[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_1.b_o[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_6.a_i[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_6.b_i[15:0]
+NTT_axis_ip.ntt_inst.Delay_inst_6.a_o[15:0]
+@23
+NTT_axis_ip.ntt_inst.Delay_inst_6.b_o[15:0]
+[pattern_trace] 1
+[pattern_trace] 0

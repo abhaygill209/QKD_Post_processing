@@ -1,0 +1,12 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1779994793" />
+    <testcase name="test_ntt" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT0.1/tb.py" lineno="310" time="0.0903005599975586" sim_time_ns="3265.0" ratio_time="36157.029370452125">
+      <failure error_type="AssertionError" error_msg="255/256 coefficients mismatched. If ALL mismatch, suspect NTT_TYPE or Montgomery domain. If a permutation, suspect OUTPUT_HALF_DISTANCE_PAIRING / OUTPUT_BIT_REVERSED." />
+    </testcase>
+    <testcase name="test_ntt_repeated" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT0.1/tb.py" lineno="393" time="0.13688373565673828" sim_time_ns="12755.0" ratio_time="93181.26758306452">
+      <failure error_type="AssertionError" error_msg="All 4 frames are identical to each other but do NOT match the reference (e.g. idx 1: EXP=3270 GOT=247). The DUT is repeatable; suspect NTT_TYPE / Montgomery domain / output ordering config." />
+    </testcase>
+    <testcase name="test_dft_identify" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT0.1/tb.py" lineno="507" time="0.019256591796875" sim_time_ns="3275.0" ratio_time="170071.6323296355" />
+  </testsuite>
+</testsuites>

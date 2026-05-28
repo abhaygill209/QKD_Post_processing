@@ -1,136 +1,47 @@
-// module TwiddleROM #(
-//     parameter DATA_WIDTH = 32, 
-//     parameter STAGE = 1,
-//     parameter DEPTH = (STAGE == 0) ? 1 : (1 << (STAGE)),
-//     parameter ADDR_WIDTH = 32,
-//     parameter INIT_FILE = ""
-// )(
-//     input  wire                     clk,
-//     input  wire [ADDR_WIDTH-1:0]    addr,
-//     output reg  [DATA_WIDTH-1:0]    dout
-// );
-
-//     // Force BRAM inference
-//     (* ram_style = "block", rom_style = "block" *)
-//     reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
-
-//     integer file;
-
-//     // Initialization with DEBUG
-//     initial begin
-//         $display("====================================");
-//         $display("TWIDDLE ROM INIT");
-//         $display("STAGE = %0d", STAGE);
-//         $display("DEPTH = %0d", DEPTH);
-//         $display("INIT_FILE = %s", INIT_FILE);
-
-//         if (INIT_FILE != "") begin
-
-//             file = $fopen(INIT_FILE, "r");
-
-//             if (file == 0) begin
-//                 $display("ERROR: Cannot open file %s", INIT_FILE);
-//                 $finish;
-//             end else begin
-//                 $display("File opened successfully");
-//                 $fclose(file);
-//             end
-
-//             $readmemh(INIT_FILE, mem);
-
-//             #1;
-//             $display("mem[0] = %h", mem[0]);
-
-//         end else begin
-//             $display(" ERROR: INIT_FILE is empty");
-//         end
-
-//         $display("====================================");
-//     end
-
-//     // Synchronous read (BRAM behavior)
-//     always @(posedge clk) begin
-//         dout <= mem[addr];
-//     end
-
-// endmodule
-
 module TwiddleROM #(
     parameter DATA_WIDTH = 32,
-    parameter STAGE = 1,
-    parameter DEPTH = (STAGE == 0) ? 1 : (1 << STAGE),
+    parameter STAGE      = 1,
+    parameter DEPTH      = (STAGE == 0) ? 1 : (1 << STAGE),
     parameter ADDR_WIDTH = 32,
-    parameter INIT_FILE = ""
+    parameter INIT_FILE  = ""
 )(
-    input  wire                   clk, stall_i,
+    input  wire                   clk,
+    input  wire                   stall_i,
     input  wire [ADDR_WIDTH-1:0]  addr,
     output reg  [DATA_WIDTH-1:0]  dout
 );
 
-    // ROM / BRAM inference
+    // ============================================================
+    // ROM Memory
+    // ============================================================
+
     (* ram_style = "block", rom_style = "block" *)
     reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
 
-`ifndef SYNTHESIS
-    integer file;
-`endif
+    // ============================================================
+    // Memory Initialization
+    // ============================================================
 
-    // ============================================================
-    // Memory initialization
-    // ============================================================
     initial begin
-`ifndef SYNTHESIS
-        // Debug prints for simulation only
-        $display("====================================");
-        $display("TWIDDLE ROM INIT");
-        $display("STAGE     = %0d", STAGE);
-        $display("DEPTH     = %0d", DEPTH);
-        $display("INIT_FILE = %s", INIT_FILE);
-`endif
-
-        if (INIT_FILE != "") begin
-
-`ifndef SYNTHESIS
-            // Simulation-only file existence check
-            file = $fopen(INIT_FILE, "r");
-
-            if (file == 0) begin
-                $display("ERROR: Cannot open file %s", INIT_FILE);
-                $finish;
-            end else begin
-                $display("File opened successfully");
-                $fclose(file);
-            end
-`endif
-
-            // Synthesizable ROM initialization
+        if (INIT_FILE != "")
             $readmemh(INIT_FILE, mem);
-
-`ifndef SYNTHESIS
-            #1;
-            $display("mem[0] = %h", mem[0]);
-`endif
-
-        end
-`ifndef SYNTHESIS
-        else begin
-            $display("ERROR: INIT_FILE is empty");
-        end
-
-        $display("====================================");
-`endif
     end
 
     // ============================================================
-    // Synchronous ROM read
+    // Synchronous Read
     // ============================================================
+
     always @(posedge clk) begin
-        if (!stall_i) begin 
+
+        if (!stall_i) begin
+
             if (addr < DEPTH)
                 dout <= mem[addr];
             else
                 dout <= {DATA_WIDTH{1'b0}};
+
         end
+
     end
 
 endmodule

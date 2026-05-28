@@ -1,6 +1,6 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1777043751" />
-    <testcase name="ntt_test" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT/tb.py" lineno="118" time="0.10371088981628418" sim_time_ns="6150.0" ratio_time="59299.46229267003" />
+    <property name="random_seed" value="1778097386" />
+    <testcase name="ntt_repeatability_test" classname="tb" file="/home/abhay/Hardware_security/QKD/Codes_0.1/Verif/coco_tb_NTT/tb.py" lineno="118" time="0.6332137584686279" sim_time_ns="31240.0" ratio_time="49335.63047579889" />
   </testsuite>
 </testsuites>

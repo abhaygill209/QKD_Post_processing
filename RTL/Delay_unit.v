@@ -1,6 +1,7 @@
 module Delay_Unit #(
-    parameter DATAWIDTH = 32,
-    parameter DEPTH     = 4,
+    parameter DATA_WIDTH = 16,
+    parameter STAGE     = 1,
+    parameter DEPTH     = 10,
     parameter N         = 16
 ) (
     // generic inputs 
@@ -9,183 +10,136 @@ module Delay_Unit #(
     input valid_i, stall_i,
     // output valid signal 
     output reg valid_o,
-    // Input 
-    input  [DATAWIDTH-1:0] a_i, b_i,
-    output [DATAWIDTH-1:0] a_o, b_o
+    // Input data
+    input  [DATA_WIDTH-1:0] a_i, b_i,
+    // Output data
+    output [DATA_WIDTH-1:0] a_o, b_o
 );
 
-// State Machine 
-localparam STAGE1 = 0, STAGE2 = 1, STAGE3 = 2;
-// Counter Width 
-localparam CWIDTH = $clog2(DEPTH + 1);
+    // valid_i implies write into FIFO - 32 bit write 
+    // if Buffer_2 (!empty) read from Buffer_1 and Buffer_2
+    // after every 2^stage-1 writes fill the other buffer 
+    // Buffer Depth? - 
+    // for Buffer_1 - if N point ntt then the cycle repeats itself every 
+    // N / 2^stage writes, thus at max 
+    // for continuity: 
+    // for first cycle  - 2^stage writes and stage - 1 reads
+    // subsequent cycle - 2^stage writes and 2^stage-1 reads 
+    // thus for all N writes to happen we need N / (2^stage-1) cycles
+    // and max buffer depth = N/2 - ((N / (2^stage+1)) - 1 )*(2^stage-1) - stage - 1
 
-// Signal Declaration 
-reg [DATAWIDTH-1:0] ReadBuffer;
-reg [CWIDTH-1:0]     Counter;
-reg [1:0]           State;
+    reg buffer_1_wr_en, buffer_2_wr_en;
+    reg buffer_1_rd_en, buffer_2_rd_en;
+    reg [2*DATA_WIDTH-1:0] buffer_1_data_i, buffer_2_data_i;
+    reg [DATA_WIDTH-1:0] buffer_1_data_o, buffer_2_data_o;
+    reg buffer_1_empty, buffer_2_empty;
+    reg state;
+    reg [STAGE:0] counter;
+    wire fifo_change;
 
-// Read and Write signals for Internal Buffers
-reg wr_en_1, wr_en_2, read_en_1, read_en_2;
-reg ctrl_1, ctrl_2, ctrl_3;
-
-// Buffer Instanciation 
-wire [DATAWIDTH-1:0] Buff_1_w, Buff_2_w;
-wire [DATAWIDTH-1:0] Buff_1_r, Buff_2_r;
-wire [DATAWIDTH-1:0] b_o_mux;
-
-// Internal Buffers 
-    buffer #(
-        .WIDTH(DATAWIDTH),
+    DU_FIFO #(
+        .DATA_WIDTH(DATA_WIDTH),
         .DEPTH(DEPTH)
     ) buffer_1 (
         .clk(clk_i),
         .rst(rst_i),
-        .wr_en(wr_en_1),
-        .rd_en(read_en_1),
-        .din(Buff_1_w),
-        .dout(Buff_1_r)
+        .wr_en(buffer_1_wr_en),
+        .wr_data(buffer_1_data_i),
+        //.full(),
+        .rd_en(buffer_1_rd_en),
+        .rd_data(buffer_1_data_o),
+        .empty(buffer_1_empty)
     );
 
-    buffer #(
-        .WIDTH(DATAWIDTH),
+    DU_FIFO #(
+        .DATA_WIDTH(DATA_WIDTH),
         .DEPTH(DEPTH)
     ) buffer_2 (
         .clk(clk_i),
         .rst(rst_i),
-        .wr_en(wr_en_2),
-        .rd_en(read_en_2),
-        .din(Buff_2_w),
-        .dout(Buff_2_r)
+        .wr_en(buffer_2_wr_en),
+        .wr_data(buffer_2_data_i),
+        //.full(),
+        .rd_en(buffer_2_rd_en),
+        .rd_data(buffer_2_data_o),
+        .empty(buffer_2_empty)
     );
+    
+    assign fifo_change = (counter == 2**(STAGE-1) - 1);
 
-// Input to Buffer MUX
-    mux2x1 mux1 (
-        .a(a_i),
-        .b(b_i),
-        .sel(ctrl_1),
-        .out(Buff_1_w)
-    );
-
-    mux2x1 mux2 (
-        .a(b_i),
-        .b(a_i),
-        .sel(ctrl_1),
-        .out(Buff_2_w)
-    );
-
-// Output from Buffer MUX
-    mux2x1 mux3 (
-        .a(Buff_1_r),
-        .b(Buff_2_r),
-        .sel(ctrl_2),
-        .out(a_o)
-    );
-
-    mux2x1 mux4 (
-        .a(Buff_2_r),
-        .b(Buff_1_r),
-        .sel(ctrl_2),
-        .out(b_o_mux)
-    );
-
-    mux2x1 mux5 (
-        .a(b_o_mux),
-        .b(ReadBuffer),
-        .sel(ctrl_3),
-        .out(b_o)
-    );
-
-    // Logic controll 
-    always @(posedge clk_i or posedge rst_i) begin
+    always @(posedge clk_i) begin 
         if (rst_i) begin 
-            Counter <= 1;
-            State   <= STAGE1;
-            ctrl_2  <= 0;
-            ctrl_3  <= 0;
-            valid_o <= 0;
-        end else begin 
-            // pipeline stall and latch
-            valid_o <= 0;
-            if (!stall_i) begin 
-            valid_o <= 0;
-            if (valid_i) begin 
-                Counter <= Counter + 1;
-                case (State)
-                    STAGE1: begin
-                        // Out Mux Config
-                        ctrl_2 <= 0;
-                        ctrl_3 <= 0;
-                        // State Change Logic
-                        if (ChangeState) begin 
-                            State   <= STAGE2;
-                            Counter <= 1;
-                        end 
-                    end 
-                    STAGE2: begin
-                        ctrl_2     <= 0;
-                        ctrl_3     <= 1;
-                        ReadBuffer <= a_i;
-                        if (ChangeState) begin 
-                            State   <= STAGE3;
-                            Counter <= 1;
-                        end 
-                        // Valid Output 
-                        valid_o <= 1;
-                    end
-                    STAGE3: begin 
-                        ctrl_2 <= 1;
-                        ctrl_3 <= 0;
-                        if (ChangeState) begin 
-                            State   <= STAGE2;
-                            Counter <= 1;
-                        end 
-                        // Valid Output 
-                        valid_o <= 1;
-                    end 
-                endcase
+            counter <= 0;
+        end 
+        else begin 
+            if (fifo_change) begin 
+                counter <= 0;
             end 
+            else if (valid_i && !stall_i) begin 
+                counter <= counter + 1;
             end
-        end  
+        end
     end
 
-    // Combinational control logic
-    always @(*) begin 
-        if (valid_i && !stall_i) begin 
-            case (State) 
-                STAGE1: begin
-                    wr_en_1 = 1;
-                    wr_en_2 = 1;
-                    ctrl_1  = 0;
-                    read_en_1 = 0;
-                    read_en_2 = 0;
-                end 
-
-                STAGE2: begin 
-                    wr_en_1 = 1;
-                    wr_en_2 = 0;
-                    ctrl_1  = 1;
-                    read_en_1 = 1;
-                    read_en_2 = 0;
-                end 
-
-                STAGE3: begin
-                    wr_en_1 = 1;
-                    wr_en_2 = 1;
-                    ctrl_1  = 0;
-                    read_en_1 = 1;
-                    read_en_2 = 1;
-                end
-            endcase
-        end else begin 
-                wr_en_1   = 0;
-                wr_en_2   = 0;
-                read_en_1 = 0;
-                read_en_2 = 0;
-                ctrl_1    = 0;
+    // state machine 
+    always @(posedge clk_i) begin 
+        if (rst_i) begin 
+            state <= 0;
+        end 
+        else begin 
+            if (fifo_change && valid_i) begin 
+                state <= ~state;
+            end 
         end
-    end 
+    end
 
-    // State Change Flag 
-    wire ChangeState = (Counter == DEPTH/4);
-    
+    // control logic for filling the buffers
+    always @(*) begin 
+        case (state)
+            0: begin 
+                buffer_1_data_i = {b_i, a_i};
+                buffer_2_data_i = 0;
+                buffer_1_wr_en = valid_i;
+                buffer_2_wr_en = 0;
+            end 
+            1: begin 
+                buffer_1_data_i = 0;
+                buffer_2_data_i = {b_i, a_i};
+                buffer_1_wr_en = 0;
+                buffer_2_wr_en = valid_i;
+            end 
+            default: begin 
+                buffer_1_wr_en = 0;
+                buffer_2_wr_en = 0;
+            end
+        endcase
+    end 
+    // control logic for reading from buffers
+    always @(*) begin
+        buffer_1_rd_en = ~buffer_2_empty;
+        buffer_2_rd_en = ~buffer_2_empty;
+        a_o = buffer_1_data_o;
+        b_o = buffer_2_data_o;
+    end
+
+    // for valid_o
+    always @(posedge clk_i) begin
+        if (rst_i) begin 
+            valid_o <= 0;
+        end 
+        else begin 
+            valid_o <= !buffer_2_empty;
+        end
+    end
+
 endmodule
+
+/*
+    Buffer Module: 
+    buffer 1 and buffer 2 
+    buffer 1 stores 2^stage-1 inputs 
+    buffer 2 stores next 2^stage-1 inputs
+    as soon as buffer 2 recieves 1st data use it for output 
+    continuity: repeat this every 2^stage-1 cycles
+    and if buffer 2 has data then keep on giving valid out.
+*/
